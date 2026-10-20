@@ -1,0 +1,268 @@
+Package: vcpkg-cmake-config
+Version: 2026-07-21
+Architecture: x64-linux
+Multi-Arch: same
+Abi: 0ee42e39da7599e8cb10c5b061dd3ace75d6268e2abc1717f7f6f76380507296
+Status: install ok installed
+
+Package: vcpkg-cmake
+Version: 2025-08-07
+Architecture: x64-linux
+Multi-Arch: same
+Abi: 3610dd5d1ab14314f7ac023eae5ed636c66dae10363e1184803b09ee579756f5
+Status: install ok installed
+
+Package: gtest
+Version: 1.18.0
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-linux
+Multi-Arch: same
+Abi: 56897374c602c915f461e46763792f44916e5378eda36abe62cb9b3be1091935
+Description: Google Testing and Mocking Framework
+Status: install ok installed
+
+Package: nlohmann-json
+Version: 3.12.0
+Port-Version: 2
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-linux
+Multi-Arch: same
+Abi: d3bc007abbcd3e8de6e7b83ad9640e8ddfec8de54a858a718a21419f6b4f3db7
+Description: JSON for Modern C++
+Status: install ok installed
+
+Package: vcpkg-cmake-get-vars
+Version: 2025-05-29
+Depends: vcpkg-cmake
+Architecture: x64-linux
+Multi-Arch: same
+Abi: aa30ec0d2cf90d0a881d86a0acc70abf9d4fb01dedecc1ac62312fcc5b2239b8
+Status: install ok installed
+
+Package: openssl
+Version: 3.6.5
+Port-Version: 2
+Depends: vcpkg-cmake, vcpkg-cmake-config, vcpkg-cmake-get-vars
+Architecture: x64-linux
+Multi-Arch: same
+Abi: 872b52b4229da6f6e8f753871d0462a11f37b518c96e09ebaf34732a2694b1a1
+Description: OpenSSL is an open source project that provides a robust, commercial-grade, and full-featured toolkit for the Transport Layer Security (TLS) and Secure Sockets Layer (SSL) protocols. It is also a general-purpose cryptography library.
+Status: install ok installed
+
+Package: sqlite3
+Version: 3.53.4
+Port-Version: 2
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-linux
+Multi-Arch: same
+Abi: da66c427cff824cb6ddf07f1aff1e6ff95880950d89cf71c8b6f4766f21f5c7f
+Description: SQLite is a software library that implements a self-contained, serverless, zero-configuration, transactional SQL database engine.
+Default-Features: json1
+Status: install ok installed
+
+Package: sqlite3
+Feature: json1
+Architecture: x64-linux
+Multi-Arch: same
+Description: Enable JSON functionality for sqlite3
+Status: install ok installed
+
+Package: zstd
+Version: 1.5.7
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-linux
+Multi-Arch: same
+Abi: 90f7ed42a6a123fd3969b2d975a192582e45150a5c3b59063226cc452f716dcd
+Description: Zstandard - Fast real-time compression algorithm
+Status: install ok installed
+
+Package: zlib
+Version: 1.3.2
+Port-Version: 2
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-linux
+Multi-Arch: same
+Abi: e5a4437586bac8fbac6298f090c8e00d5e765c575472f1076d2fdcbee43d1d68
+Description: A compression library
+Status: install ok installed
+
+Package: curl
+Version: 8.23.0
+Depends: vcpkg-cmake, vcpkg-cmake-config, zlib
+Architecture: x64-linux
+Multi-Arch: same
+Abi: c835c47ca76a9857c4a391fe718aebd0eb73af2f0ef3af55a8627e005b04d32c
+Description: A library for transferring data with URLs
+Default-Features: ssl
+Status: install ok installed
+
+Package: curl
+Feature: openssl
+Depends: openssl
+Architecture: x64-linux
+Multi-Arch: same
+Description: TLS support (OpenSSL)
+Status: install ok installed
+
+Package: curl
+Feature: ssl
+Architecture: x64-linux
+Multi-Arch: same
+Description: Default SSL / TLS implementation.
+Status: install ok installed
+
+Package: s2n
+Version: 1.7.6
+Depends: openssl, vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-linux
+Multi-Arch: same
+Abi: 92be82d48d62428af1d7aa5dc0c376543fffb3a3e4668786cb0f54d025986c7b
+Description: C99 implementation of the TLS/SSL protocols.
+Status: install ok installed
+
+Package: aws-c-common
+Version: 1.0.2
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-linux
+Multi-Arch: same
+Abi: 12fa05a4beb03fce619b26271c9cfc0e42e98ee1eddb664f609ca24d4c7f5f3e
+Description: AWS common library for C
+Status: install ok installed
+
+Package: aws-checksums
+Version: 1.0.1
+Depends: aws-c-common, vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-linux
+Multi-Arch: same
+Abi: d451fdd6a90b3514324ab7267254255417a041a1aed87084cbe75e5bd639b638
+Description: Cross-Platform HW accelerated CRC32c and CRC32 with fallback to efficient SW implementations.
+Status: install ok installed
+
+Package: aws-c-sdkutils
+Version: 1.0.0
+Depends: aws-c-common, vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-linux
+Multi-Arch: same
+Abi: c52e476bc11a7886dec31a9b3c9565b5839068fce7ad7ef58a45471f1608e692
+Description: C99 library implementing AWS SDK specific utilities. Includes utilities for ARN parsing, reading AWS profiles, etc...
+Status: install ok installed
+
+Package: aws-c-cal
+Version: 1.0.0
+Depends: aws-c-common, openssl, vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-linux
+Multi-Arch: same
+Abi: 8324bcfe9ac6791d687903be267603bcf685e805dcfe7640bfdeb469a9e189ba
+Description: C99 wrapper for cryptography primitives.
+Status: install ok installed
+
+Package: aws-c-io
+Version: 1.1.0
+Depends: aws-c-cal, aws-c-common, s2n, vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-linux
+Multi-Arch: same
+Abi: 48ac9d0c314d5e2aa7a03cf4354b9c703f5d3673d8b63711e144c902e068948c
+Description: Handles all IO and TLS work for application protocols.
+Status: install ok installed
+
+Package: aws-c-compression
+Version: 1.0.0
+Depends: aws-c-common, vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-linux
+Multi-Arch: same
+Abi: 768f4761428cf4d9069d11448decf3af73d9d1334f8dcdac66870f3d4bb5c59e
+Description: C99 implementation of huffman encoding/decoding
+Status: install ok installed
+
+Package: aws-c-http
+Version: 1.0.0
+Depends: aws-c-cal, aws-c-common, aws-c-compression, aws-c-io, vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-linux
+Multi-Arch: same
+Abi: 6ff6bc2f60f0de200b739661b2c7abded0adbd3a3af3e7c40210f426a68cefa7
+Description: C99 implementation of the HTTP/1.1 and HTTP/2 specifications
+Status: install ok installed
+
+Package: aws-c-auth
+Version: 1.0.0
+Depends: aws-c-cal, aws-c-http, aws-c-sdkutils, s2n, vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-linux
+Multi-Arch: same
+Abi: 8d447c54feed6ec6ce16cec9c7a21b7348da67300e40db1c95bf26cbe4e526b0
+Description: C99 library implementation of AWS client-side authentication: standard credentials providers and signing.
+Status: install ok installed
+
+Package: aws-c-s3
+Version: 1.3.1
+Depends: aws-c-auth, aws-c-http, aws-c-sdkutils, aws-checksums, s2n, vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-linux
+Multi-Arch: same
+Abi: dd0f2b2537b3dd1ab69c8390988b6e003a226664efd4e07dfd9e676d4782918d
+Description: C99 library implementation for communicating with the S3 service, designed for maximizing throughput on high bandwidth EC2 instances.
+Status: install ok installed
+
+Package: aws-c-mqtt
+Version: 1.0.0
+Depends: aws-c-http, aws-c-io, s2n, vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-linux
+Multi-Arch: same
+Abi: d5722d862d5fce0c17311bafbcb3fe2320d29aa2261676cbac0f29343ce9a260
+Description: C99 implementation of the MQTT 3.1.1 specification.
+Status: install ok installed
+
+Package: aws-c-event-stream
+Version: 1.0.0
+Depends: aws-c-common, aws-c-io, aws-checksums, vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-linux
+Multi-Arch: same
+Abi: ef7aff7cfe9151ab2119f1531b1d289ee2e205465482deea9b4264903e04436c
+Description: C99 implementation of the vnd.amazon.event-stream content-type.
+Status: install ok installed
+
+Package: aws-crt-cpp
+Version: 0.43.7
+Depends: aws-c-auth, aws-c-cal, aws-c-common, aws-c-compression, aws-c-event-stream, aws-c-http, aws-c-io, aws-c-mqtt, aws-c-s3, aws-checksums, s2n, vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-linux
+Multi-Arch: same
+Abi: 56a1ecfd7a914b02d41bc6a2d9da733c9f9dbd172b302d2020fae40ce055ec37
+Description: C++ wrapper around the aws-c-* libraries. Provides Cross-Platform Transport Protocols and SSL/TLS implementations for C++.
+Status: install ok installed
+
+Package: aws-sdk-cpp
+Version: 1.11.900
+Depends: aws-crt-cpp, curl, openssl, vcpkg-cmake, vcpkg-cmake-config, zlib
+Architecture: x64-linux
+Multi-Arch: same
+Abi: b61302bfd2736046c211b412f3eb2254bbd6ad8a1df636d3ce080eeb3ff5b643
+Description: AWS SDK for C++
+Default-Features: dynamodb, kinesis, s3
+Status: install ok installed
+
+Package: aws-sdk-cpp
+Feature: s3
+Architecture: x64-linux
+Multi-Arch: same
+Description: C++ SDK for the AWS s3 service
+Status: install ok installed
+
+Package: aws-sdk-cpp
+Feature: sso
+Architecture: x64-linux
+Multi-Arch: same
+Description: C++ SDK for the AWS sso service
+Status: install ok installed
+
+Package: aws-sdk-cpp
+Feature: sso-oidc
+Architecture: x64-linux
+Multi-Arch: same
+Description: C++ SDK for the AWS sso-oidc service
+Status: install ok installed
+
+Package: aws-sdk-cpp
+Feature: sts
+Architecture: x64-linux
+Multi-Arch: same
+Description: C++ SDK for the AWS sts service
+Status: install ok installed
+

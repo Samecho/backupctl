@@ -1,0 +1,1022 @@
+[
+  {
+    "dataset": "100000-small-files",
+    "change": "resource_acceptance",
+    "workers": 4,
+    "runs": 1,
+    "median_seconds": 209.03809658199998,
+    "min_seconds": 209.03809658199998,
+    "max_seconds": 209.03809658199998,
+    "max_rss_kib": 43460
+  },
+  {
+    "dataset": "50-GiB-sparse-zero",
+    "change": "resource_acceptance",
+    "workers": 4,
+    "runs": 1,
+    "median_seconds": 64.55219051400002,
+    "min_seconds": 64.55219051400002,
+    "max_seconds": 64.55219051400002,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "compressible",
+    "change": "cold",
+    "workers": 1,
+    "runs": 5,
+    "median_seconds": 0.16646425199999726,
+    "min_seconds": 0.16440668100000266,
+    "max_seconds": 0.17405982399999687,
+    "max_rss_kib": 37868
+  },
+  {
+    "dataset": "compressible",
+    "change": "cold",
+    "workers": 2,
+    "runs": 5,
+    "median_seconds": 0.11325374199999771,
+    "min_seconds": 0.11038164400000028,
+    "max_seconds": 0.114687871000001,
+    "max_rss_kib": 42024
+  },
+  {
+    "dataset": "compressible",
+    "change": "cold",
+    "workers": 4,
+    "runs": 5,
+    "median_seconds": 0.11800048199999935,
+    "min_seconds": 0.11203274799999008,
+    "max_seconds": 0.12076415700001064,
+    "max_rss_kib": 52140
+  },
+  {
+    "dataset": "compressible",
+    "change": "cold",
+    "workers": 8,
+    "runs": 5,
+    "median_seconds": 0.11628255399999432,
+    "min_seconds": 0.11125714399999254,
+    "max_seconds": 0.11989016500000105,
+    "max_rss_kib": 57088
+  },
+  {
+    "dataset": "compressible",
+    "change": "insert",
+    "workers": 1,
+    "runs": 5,
+    "median_seconds": 0.20069337799999687,
+    "min_seconds": 0.1987920360000004,
+    "max_seconds": 0.2036395760000005,
+    "max_rss_kib": 37868
+  },
+  {
+    "dataset": "compressible",
+    "change": "insert",
+    "workers": 2,
+    "runs": 5,
+    "median_seconds": 0.11801065400000255,
+    "min_seconds": 0.11153486099999554,
+    "max_seconds": 0.12150191799999277,
+    "max_rss_kib": 37872
+  },
+  {
+    "dataset": "compressible",
+    "change": "insert",
+    "workers": 4,
+    "runs": 5,
+    "median_seconds": 0.11976550899998983,
+    "min_seconds": 0.1154073889999978,
+    "max_seconds": 0.12388860099999022,
+    "max_rss_kib": 52044
+  },
+  {
+    "dataset": "compressible",
+    "change": "insert",
+    "workers": 8,
+    "runs": 5,
+    "median_seconds": 0.1213028620000074,
+    "min_seconds": 0.11717921499999306,
+    "max_seconds": 0.12537179400000298,
+    "max_rss_kib": 57188
+  },
+  {
+    "dataset": "compressible",
+    "change": "partial",
+    "workers": 1,
+    "runs": 5,
+    "median_seconds": 0.1356451470000053,
+    "min_seconds": 0.134510621000004,
+    "max_seconds": 0.13754471000000024,
+    "max_rss_kib": 37868
+  },
+  {
+    "dataset": "compressible",
+    "change": "partial",
+    "workers": 2,
+    "runs": 5,
+    "median_seconds": 0.09968540799999914,
+    "min_seconds": 0.09556067799999823,
+    "max_seconds": 0.10379313500000364,
+    "max_rss_kib": 37868
+  },
+  {
+    "dataset": "compressible",
+    "change": "partial",
+    "workers": 4,
+    "runs": 5,
+    "median_seconds": 0.10719492900000205,
+    "min_seconds": 0.10579449799999452,
+    "max_seconds": 0.11398557299999368,
+    "max_rss_kib": 37868
+  },
+  {
+    "dataset": "compressible",
+    "change": "partial",
+    "workers": 8,
+    "runs": 5,
+    "median_seconds": 0.1094762020000104,
+    "min_seconds": 0.10545390600000815,
+    "max_seconds": 0.11344731300000888,
+    "max_rss_kib": 37868
+  },
+  {
+    "dataset": "compressible",
+    "change": "unchanged",
+    "workers": 1,
+    "runs": 5,
+    "median_seconds": 0.1284801759999965,
+    "min_seconds": 0.12624189199999591,
+    "max_seconds": 0.1311610660000042,
+    "max_rss_kib": 37868
+  },
+  {
+    "dataset": "compressible",
+    "change": "unchanged",
+    "workers": 2,
+    "runs": 5,
+    "median_seconds": 0.09927102199999638,
+    "min_seconds": 0.09817448199999035,
+    "max_seconds": 0.10180135999999607,
+    "max_rss_kib": 37868
+  },
+  {
+    "dataset": "compressible",
+    "change": "unchanged",
+    "workers": 4,
+    "runs": 5,
+    "median_seconds": 0.10855516899999884,
+    "min_seconds": 0.10366576399999872,
+    "max_seconds": 0.12513066999999012,
+    "max_rss_kib": 37868
+  },
+  {
+    "dataset": "compressible",
+    "change": "unchanged",
+    "workers": 8,
+    "runs": 5,
+    "median_seconds": 0.1106401920000053,
+    "min_seconds": 0.10804795299999626,
+    "max_seconds": 0.11623649800000635,
+    "max_rss_kib": 37868
+  },
+  {
+    "dataset": "compressible",
+    "change": "wide",
+    "workers": 1,
+    "runs": 5,
+    "median_seconds": 0.16908323999999197,
+    "min_seconds": 0.16727178800000786,
+    "max_seconds": 0.1715263680000021,
+    "max_rss_kib": 37868
+  },
+  {
+    "dataset": "compressible",
+    "change": "wide",
+    "workers": 2,
+    "runs": 5,
+    "median_seconds": 0.1167908319999924,
+    "min_seconds": 0.11140852299999437,
+    "max_seconds": 0.11779204299999435,
+    "max_rss_kib": 42160
+  },
+  {
+    "dataset": "compressible",
+    "change": "wide",
+    "workers": 4,
+    "runs": 5,
+    "median_seconds": 0.11792740699999626,
+    "min_seconds": 0.11620160199998963,
+    "max_seconds": 0.12267959300000086,
+    "max_rss_kib": 52180
+  },
+  {
+    "dataset": "compressible",
+    "change": "wide",
+    "workers": 8,
+    "runs": 5,
+    "median_seconds": 0.12110632200000282,
+    "min_seconds": 0.11423956800000212,
+    "max_seconds": 0.12376062200000604,
+    "max_rss_kib": 57380
+  },
+  {
+    "dataset": "delayed",
+    "change": "cold",
+    "workers": 1,
+    "runs": 5,
+    "median_seconds": 0.9689210830000548,
+    "min_seconds": 0.9672962679999273,
+    "max_seconds": 0.9698670699999639,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "delayed",
+    "change": "cold",
+    "workers": 2,
+    "runs": 5,
+    "median_seconds": 0.5591201049999199,
+    "min_seconds": 0.5590761739999834,
+    "max_seconds": 0.5592758840000442,
+    "max_rss_kib": 42092
+  },
+  {
+    "dataset": "delayed",
+    "change": "cold",
+    "workers": 4,
+    "runs": 5,
+    "median_seconds": 0.4209042429999954,
+    "min_seconds": 0.4198121509999737,
+    "max_seconds": 0.42560230500009766,
+    "max_rss_kib": 52092
+  },
+  {
+    "dataset": "delayed",
+    "change": "cold",
+    "workers": 8,
+    "runs": 5,
+    "median_seconds": 0.39982246700003543,
+    "min_seconds": 0.3967657749999489,
+    "max_seconds": 0.40133006399992155,
+    "max_rss_kib": 57032
+  },
+  {
+    "dataset": "delayed",
+    "change": "insert",
+    "workers": 1,
+    "runs": 5,
+    "median_seconds": 1.0461619679999785,
+    "min_seconds": 1.0441123560000278,
+    "max_seconds": 1.0480045059999838,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "delayed",
+    "change": "insert",
+    "workers": 2,
+    "runs": 5,
+    "median_seconds": 0.5980622289999928,
+    "min_seconds": 0.596633020000013,
+    "max_seconds": 0.5986397870000246,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "delayed",
+    "change": "insert",
+    "workers": 4,
+    "runs": 5,
+    "median_seconds": 0.4220149310000352,
+    "min_seconds": 0.4203381589999253,
+    "max_seconds": 0.4251007599999639,
+    "max_rss_kib": 52124
+  },
+  {
+    "dataset": "delayed",
+    "change": "insert",
+    "workers": 8,
+    "runs": 5,
+    "median_seconds": 0.4014227770001071,
+    "min_seconds": 0.3980479599999853,
+    "max_seconds": 0.40436789800003226,
+    "max_rss_kib": 57032
+  },
+  {
+    "dataset": "delayed",
+    "change": "partial",
+    "workers": 1,
+    "runs": 5,
+    "median_seconds": 0.37365516900001694,
+    "min_seconds": 0.3732888429999548,
+    "max_seconds": 0.3749069259999942,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "delayed",
+    "change": "partial",
+    "workers": 2,
+    "runs": 5,
+    "median_seconds": 0.3338057270000263,
+    "min_seconds": 0.33245560299997123,
+    "max_seconds": 0.33789730099999815,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "delayed",
+    "change": "partial",
+    "workers": 4,
+    "runs": 5,
+    "median_seconds": 0.33931563199996617,
+    "min_seconds": 0.3361151809999683,
+    "max_seconds": 0.3420495130000063,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "delayed",
+    "change": "partial",
+    "workers": 8,
+    "runs": 5,
+    "median_seconds": 0.33733650400006354,
+    "min_seconds": 0.33543750500007263,
+    "max_seconds": 0.34477018400002635,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "delayed",
+    "change": "unchanged",
+    "workers": 1,
+    "runs": 5,
+    "median_seconds": 0.2869830099999717,
+    "min_seconds": 0.2866756920000171,
+    "max_seconds": 0.28808810100008486,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "delayed",
+    "change": "unchanged",
+    "workers": 2,
+    "runs": 5,
+    "median_seconds": 0.26012279200006105,
+    "min_seconds": 0.25938330799999676,
+    "max_seconds": 0.2660256180000715,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "delayed",
+    "change": "unchanged",
+    "workers": 4,
+    "runs": 5,
+    "median_seconds": 0.27011424900001657,
+    "min_seconds": 0.26733975299998747,
+    "max_seconds": 0.2749205530000154,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "delayed",
+    "change": "unchanged",
+    "workers": 8,
+    "runs": 5,
+    "median_seconds": 0.2729563999999982,
+    "min_seconds": 0.27034611199997016,
+    "max_seconds": 0.2803221860000349,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "delayed",
+    "change": "wide",
+    "workers": 1,
+    "runs": 5,
+    "median_seconds": 1.0123943860000963,
+    "min_seconds": 1.0101926999999478,
+    "max_seconds": 1.0137599720000026,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "delayed",
+    "change": "wide",
+    "workers": 2,
+    "runs": 5,
+    "median_seconds": 0.5965542330000062,
+    "min_seconds": 0.5946848170000294,
+    "max_seconds": 0.5966907970000648,
+    "max_rss_kib": 42276
+  },
+  {
+    "dataset": "delayed",
+    "change": "wide",
+    "workers": 4,
+    "runs": 5,
+    "median_seconds": 0.4136884629999713,
+    "min_seconds": 0.41283198799999354,
+    "max_seconds": 0.41648025200004213,
+    "max_rss_kib": 52168
+  },
+  {
+    "dataset": "delayed",
+    "change": "wide",
+    "workers": 8,
+    "runs": 5,
+    "median_seconds": 0.3876743630000874,
+    "min_seconds": 0.3861557379999567,
+    "max_seconds": 0.3933662719999802,
+    "max_rss_kib": 57136
+  },
+  {
+    "dataset": "mixed",
+    "change": "cold",
+    "workers": 1,
+    "runs": 5,
+    "median_seconds": 2.3923944459999973,
+    "min_seconds": 2.3838731470000027,
+    "max_seconds": 2.420085699999987,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "mixed",
+    "change": "cold",
+    "workers": 2,
+    "runs": 5,
+    "median_seconds": 2.2904114370000173,
+    "min_seconds": 2.263047934000042,
+    "max_seconds": 2.305667712999991,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "mixed",
+    "change": "cold",
+    "workers": 4,
+    "runs": 5,
+    "median_seconds": 2.195147947999999,
+    "min_seconds": 2.185551191000002,
+    "max_seconds": 2.233741154000029,
+    "max_rss_kib": 53068
+  },
+  {
+    "dataset": "mixed",
+    "change": "cold",
+    "workers": 8,
+    "runs": 5,
+    "median_seconds": 2.203530167999986,
+    "min_seconds": 2.195246738000037,
+    "max_seconds": 2.2535705319999693,
+    "max_rss_kib": 53920
+  },
+  {
+    "dataset": "mixed",
+    "change": "insert",
+    "workers": 1,
+    "runs": 5,
+    "median_seconds": 2.3899266290000014,
+    "min_seconds": 2.3752656220000006,
+    "max_seconds": 2.446153260000017,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "mixed",
+    "change": "insert",
+    "workers": 2,
+    "runs": 5,
+    "median_seconds": 2.3031015749999995,
+    "min_seconds": 2.2277940939999894,
+    "max_seconds": 2.3371073149999972,
+    "max_rss_kib": 42700
+  },
+  {
+    "dataset": "mixed",
+    "change": "insert",
+    "workers": 4,
+    "runs": 5,
+    "median_seconds": 2.2268451839999557,
+    "min_seconds": 2.196484639999994,
+    "max_seconds": 2.369237162000047,
+    "max_rss_kib": 57220
+  },
+  {
+    "dataset": "mixed",
+    "change": "insert",
+    "workers": 8,
+    "runs": 5,
+    "median_seconds": 2.2123205070000154,
+    "min_seconds": 2.1972209999999563,
+    "max_seconds": 2.276548391999995,
+    "max_rss_kib": 62456
+  },
+  {
+    "dataset": "mixed",
+    "change": "partial",
+    "workers": 1,
+    "runs": 5,
+    "median_seconds": 2.2793075149999993,
+    "min_seconds": 2.2610329649999983,
+    "max_seconds": 2.292567833999982,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "mixed",
+    "change": "partial",
+    "workers": 2,
+    "runs": 5,
+    "median_seconds": 2.247571152000006,
+    "min_seconds": 2.148309824000023,
+    "max_seconds": 2.2558114610000075,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "mixed",
+    "change": "partial",
+    "workers": 4,
+    "runs": 5,
+    "median_seconds": 2.184249674,
+    "min_seconds": 2.1508093980000353,
+    "max_seconds": 2.2568053580000083,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "mixed",
+    "change": "partial",
+    "workers": 8,
+    "runs": 5,
+    "median_seconds": 2.1901221589999977,
+    "min_seconds": 2.175887228000022,
+    "max_seconds": 2.2221145999999976,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "mixed",
+    "change": "unchanged",
+    "workers": 1,
+    "runs": 5,
+    "median_seconds": 2.281987259999994,
+    "min_seconds": 2.258057425000004,
+    "max_seconds": 2.302749540999997,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "mixed",
+    "change": "unchanged",
+    "workers": 2,
+    "runs": 5,
+    "median_seconds": 2.227504764999992,
+    "min_seconds": 2.160554788000013,
+    "max_seconds": 2.2378911459999813,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "mixed",
+    "change": "unchanged",
+    "workers": 4,
+    "runs": 5,
+    "median_seconds": 2.1744871330000137,
+    "min_seconds": 2.1481701120000025,
+    "max_seconds": 2.201365676000023,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "mixed",
+    "change": "unchanged",
+    "workers": 8,
+    "runs": 5,
+    "median_seconds": 2.1715821129999995,
+    "min_seconds": 2.1530748969999536,
+    "max_seconds": 2.211995596999998,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "mixed",
+    "change": "wide",
+    "workers": 1,
+    "runs": 5,
+    "median_seconds": 2.3981945899999744,
+    "min_seconds": 2.387515121000007,
+    "max_seconds": 2.4192132519999916,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "mixed",
+    "change": "wide",
+    "workers": 2,
+    "runs": 5,
+    "median_seconds": 2.294230036999977,
+    "min_seconds": 2.244916837000005,
+    "max_seconds": 2.311247565000002,
+    "max_rss_kib": 42900
+  },
+  {
+    "dataset": "mixed",
+    "change": "wide",
+    "workers": 4,
+    "runs": 5,
+    "median_seconds": 2.2847761189999574,
+    "min_seconds": 2.19408555199999,
+    "max_seconds": 2.300162209000007,
+    "max_rss_kib": 57092
+  },
+  {
+    "dataset": "mixed",
+    "change": "wide",
+    "workers": 8,
+    "runs": 5,
+    "median_seconds": 2.2342672890000017,
+    "min_seconds": 2.2052578619999963,
+    "max_seconds": 2.283522395000034,
+    "max_rss_kib": 62472
+  },
+  {
+    "dataset": "random",
+    "change": "cold",
+    "workers": 1,
+    "runs": 5,
+    "median_seconds": 0.293759584,
+    "min_seconds": 0.2895681349999961,
+    "max_seconds": 0.2959296420000044,
+    "max_rss_kib": 37868
+  },
+  {
+    "dataset": "random",
+    "change": "cold",
+    "workers": 2,
+    "runs": 5,
+    "median_seconds": 0.1832612150000017,
+    "min_seconds": 0.17952951299999143,
+    "max_seconds": 0.18657480599999587,
+    "max_rss_kib": 42376
+  },
+  {
+    "dataset": "random",
+    "change": "cold",
+    "workers": 4,
+    "runs": 5,
+    "median_seconds": 0.1803197700000112,
+    "min_seconds": 0.17528424300000722,
+    "max_seconds": 0.19455022700000768,
+    "max_rss_kib": 52756
+  },
+  {
+    "dataset": "random",
+    "change": "cold",
+    "workers": 8,
+    "runs": 5,
+    "median_seconds": 0.17696672499999977,
+    "min_seconds": 0.17378322999999796,
+    "max_seconds": 0.1898566149999965,
+    "max_rss_kib": 57708
+  },
+  {
+    "dataset": "random",
+    "change": "insert",
+    "workers": 1,
+    "runs": 5,
+    "median_seconds": 0.35438409500000034,
+    "min_seconds": 0.3470890529999906,
+    "max_seconds": 0.3678493999999972,
+    "max_rss_kib": 37868
+  },
+  {
+    "dataset": "random",
+    "change": "insert",
+    "workers": 2,
+    "runs": 5,
+    "median_seconds": 0.3564320950000024,
+    "min_seconds": 0.3174327340000076,
+    "max_seconds": 0.36249053499999206,
+    "max_rss_kib": 38416
+  },
+  {
+    "dataset": "random",
+    "change": "insert",
+    "workers": 4,
+    "runs": 5,
+    "median_seconds": 0.3452883379999889,
+    "min_seconds": 0.3259552529999894,
+    "max_seconds": 0.351185325000003,
+    "max_rss_kib": 52628
+  },
+  {
+    "dataset": "random",
+    "change": "insert",
+    "workers": 8,
+    "runs": 5,
+    "median_seconds": 0.34031100100000344,
+    "min_seconds": 0.3252085299999976,
+    "max_seconds": 0.3565726669999947,
+    "max_rss_kib": 57624
+  },
+  {
+    "dataset": "random",
+    "change": "partial",
+    "workers": 1,
+    "runs": 5,
+    "median_seconds": 0.14314378500000657,
+    "min_seconds": 0.14112413600000195,
+    "max_seconds": 0.1453528179999921,
+    "max_rss_kib": 37868
+  },
+  {
+    "dataset": "random",
+    "change": "partial",
+    "workers": 2,
+    "runs": 5,
+    "median_seconds": 0.1109322340000034,
+    "min_seconds": 0.10383729999999503,
+    "max_seconds": 0.11290288600000054,
+    "max_rss_kib": 37868
+  },
+  {
+    "dataset": "random",
+    "change": "partial",
+    "workers": 4,
+    "runs": 5,
+    "median_seconds": 0.11806659100000161,
+    "min_seconds": 0.11010936399999594,
+    "max_seconds": 0.1191150810000039,
+    "max_rss_kib": 37868
+  },
+  {
+    "dataset": "random",
+    "change": "partial",
+    "workers": 8,
+    "runs": 5,
+    "median_seconds": 0.1110833209999953,
+    "min_seconds": 0.10878040700001179,
+    "max_seconds": 0.11671654500000272,
+    "max_rss_kib": 37868
+  },
+  {
+    "dataset": "random",
+    "change": "unchanged",
+    "workers": 1,
+    "runs": 5,
+    "median_seconds": 0.12651603199999784,
+    "min_seconds": 0.12489200600001027,
+    "max_seconds": 0.12893588400000056,
+    "max_rss_kib": 37868
+  },
+  {
+    "dataset": "random",
+    "change": "unchanged",
+    "workers": 2,
+    "runs": 5,
+    "median_seconds": 0.09765873399999236,
+    "min_seconds": 0.09614020499999754,
+    "max_seconds": 0.10479574200000741,
+    "max_rss_kib": 37868
+  },
+  {
+    "dataset": "random",
+    "change": "unchanged",
+    "workers": 4,
+    "runs": 5,
+    "median_seconds": 0.10804813299999694,
+    "min_seconds": 0.10192243099999132,
+    "max_seconds": 0.11424063700002307,
+    "max_rss_kib": 37868
+  },
+  {
+    "dataset": "random",
+    "change": "unchanged",
+    "workers": 8,
+    "runs": 5,
+    "median_seconds": 0.1078917049999859,
+    "min_seconds": 0.10356256500000427,
+    "max_seconds": 0.11389470999998252,
+    "max_rss_kib": 37868
+  },
+  {
+    "dataset": "random",
+    "change": "wide",
+    "workers": 1,
+    "runs": 5,
+    "median_seconds": 0.29906616399999564,
+    "min_seconds": 0.2983576369999952,
+    "max_seconds": 0.3036081500000023,
+    "max_rss_kib": 37868
+  },
+  {
+    "dataset": "random",
+    "change": "wide",
+    "workers": 2,
+    "runs": 5,
+    "median_seconds": 0.30273721099999307,
+    "min_seconds": 0.3011489310000002,
+    "max_seconds": 0.30448613800000146,
+    "max_rss_kib": 42332
+  },
+  {
+    "dataset": "random",
+    "change": "wide",
+    "workers": 4,
+    "runs": 5,
+    "median_seconds": 0.30155906900000673,
+    "min_seconds": 0.2997372480000138,
+    "max_seconds": 0.31471893600000556,
+    "max_rss_kib": 52484
+  },
+  {
+    "dataset": "random",
+    "change": "wide",
+    "workers": 8,
+    "runs": 5,
+    "median_seconds": 0.30272712300001103,
+    "min_seconds": 0.2953420400000084,
+    "max_seconds": 0.3174567659999923,
+    "max_rss_kib": 57648
+  },
+  {
+    "dataset": "small",
+    "change": "cold",
+    "workers": 1,
+    "runs": 5,
+    "median_seconds": 2.048686184000019,
+    "min_seconds": 2.037722211000016,
+    "max_seconds": 2.143858618999957,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "small",
+    "change": "cold",
+    "workers": 2,
+    "runs": 5,
+    "median_seconds": 2.074108228,
+    "min_seconds": 2.0657888719999846,
+    "max_seconds": 2.1016231639999887,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "small",
+    "change": "cold",
+    "workers": 4,
+    "runs": 5,
+    "median_seconds": 2.080125098999929,
+    "min_seconds": 2.057047136000051,
+    "max_seconds": 2.1115393529998983,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "small",
+    "change": "cold",
+    "workers": 8,
+    "runs": 5,
+    "median_seconds": 2.1119938840000714,
+    "min_seconds": 2.0723903509999673,
+    "max_seconds": 2.1444391180000366,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "small",
+    "change": "insert",
+    "workers": 1,
+    "runs": 5,
+    "median_seconds": 2.042482384999971,
+    "min_seconds": 1.9999026599999752,
+    "max_seconds": 2.0470469520000165,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "small",
+    "change": "insert",
+    "workers": 2,
+    "runs": 5,
+    "median_seconds": 2.072212805999982,
+    "min_seconds": 2.054726287000051,
+    "max_seconds": 2.137028839999971,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "small",
+    "change": "insert",
+    "workers": 4,
+    "runs": 5,
+    "median_seconds": 2.081239991000075,
+    "min_seconds": 2.075592819999997,
+    "max_seconds": 2.1069569940000292,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "small",
+    "change": "insert",
+    "workers": 8,
+    "runs": 5,
+    "median_seconds": 2.0789967370000113,
+    "min_seconds": 2.073093940000035,
+    "max_seconds": 2.129445163000014,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "small",
+    "change": "partial",
+    "workers": 1,
+    "runs": 5,
+    "median_seconds": 2.048156664999965,
+    "min_seconds": 2.033086953999998,
+    "max_seconds": 2.07445930800003,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "small",
+    "change": "partial",
+    "workers": 2,
+    "runs": 5,
+    "median_seconds": 2.0816271559999677,
+    "min_seconds": 2.064297377999992,
+    "max_seconds": 2.085646287999964,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "small",
+    "change": "partial",
+    "workers": 4,
+    "runs": 5,
+    "median_seconds": 2.083231142000045,
+    "min_seconds": 2.072495258999993,
+    "max_seconds": 2.097115332000044,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "small",
+    "change": "partial",
+    "workers": 8,
+    "runs": 5,
+    "median_seconds": 2.1143272289999686,
+    "min_seconds": 2.0879883759999984,
+    "max_seconds": 2.1348960520000446,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "small",
+    "change": "unchanged",
+    "workers": 1,
+    "runs": 5,
+    "median_seconds": 2.0199626160000435,
+    "min_seconds": 1.9975405280000018,
+    "max_seconds": 2.0725849410000023,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "small",
+    "change": "unchanged",
+    "workers": 2,
+    "runs": 5,
+    "median_seconds": 2.068576678999989,
+    "min_seconds": 2.045313974999999,
+    "max_seconds": 2.163664218000008,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "small",
+    "change": "unchanged",
+    "workers": 4,
+    "runs": 5,
+    "median_seconds": 2.078485078999961,
+    "min_seconds": 2.0496869280000283,
+    "max_seconds": 2.0914562749999277,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "small",
+    "change": "unchanged",
+    "workers": 8,
+    "runs": 5,
+    "median_seconds": 2.0909957320000103,
+    "min_seconds": 2.07416729199997,
+    "max_seconds": 2.144556871999953,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "small",
+    "change": "wide",
+    "workers": 1,
+    "runs": 5,
+    "median_seconds": 2.0426460599999814,
+    "min_seconds": 2.021988809999982,
+    "max_seconds": 2.056395782999971,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "small",
+    "change": "wide",
+    "workers": 2,
+    "runs": 5,
+    "median_seconds": 2.090595853000025,
+    "min_seconds": 2.0792738490000033,
+    "max_seconds": 2.1388936370000238,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "small",
+    "change": "wide",
+    "workers": 4,
+    "runs": 5,
+    "median_seconds": 2.078133538999964,
+    "min_seconds": 2.059774716999982,
+    "max_seconds": 2.095422436999911,
+    "max_rss_kib": 39276
+  },
+  {
+    "dataset": "small",
+    "change": "wide",
+    "workers": 8,
+    "runs": 5,
+    "median_seconds": 2.105606206999937,
+    "min_seconds": 2.091383821999898,
+    "max_seconds": 2.1482706110000436,
+    "max_rss_kib": 39276
+  }
+]
