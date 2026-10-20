@@ -83,6 +83,8 @@ a previously confirmed commit from a fresh remote check; use `verify` to check t
 remote contents again.
 
 `resume` retains the original snapshot ID and checks the frozen source inventory.
+If the initial scan was interrupted before its inventory was committed, start a
+new `backup` job. That incomplete job has no durable baseline and cannot resume.
 It reads input again and reconciles existing remote chunks; it does not upload
 confirmed chunks again. An interrupted restore starts over in a new temporary
 directory. It may leave a private temporary sibling behind after SIGKILL.

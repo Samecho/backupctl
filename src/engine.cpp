@@ -285,7 +285,7 @@ Json Engine::backup(const fs::path& requested_source, const BackupOptions& optio
     }
     std::cerr << Json{{"event", "job_started"}, {"job_id", current_job_},
                       {"snapshot_id", snapshot}}.dump() << '\n';
-    return run(database, current_job_);
+    return run(database, current_job_, true);
 }
 
 Json Engine::resume(const std::string& job) {
@@ -317,7 +317,7 @@ Json job_status(const fs::path& state, const std::string& job) {
             {"commit_confirmation", query.text(1) == "committed" ? "previously_confirmed" : "unconfirmed"}};
 }
 
-Json Engine::run(Database& database, const std::string& job) {
+Json Engine::run(Database& database, const std::string& job, bool new_job) {
     auto started = std::chrono::steady_clock::now();
     auto query = database.prepare("SELECT snapshot,repo,source,phase,created,workers,budget,commit_json "
                                   "FROM jobs WHERE id=?");
@@ -375,11 +375,14 @@ Json Engine::run(Database& database, const std::string& job) {
         }
         require(phase != "committed", "integrity", "previously committed snapshot is missing");
         if (phase == "scanning") {
+            require(new_job, "configuration",
+                    "initial inventory was not completed; start a new backup job instead of resuming");
+            checkpoint("scan_before");
             Transaction transaction(database);
-            database.prepare("DELETE FROM files WHERE job=?").bind(1, job).run();
             scan_tree(source, [&](const FileInfo& file) {
                 check_cancelled();
                 insert_file(database, job, file);
+                checkpoint("scan_entry");
             });
             set_phase(database, job, "uploading");
             transaction.commit();

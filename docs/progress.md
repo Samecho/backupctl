@@ -51,8 +51,9 @@ not weaken hashes, persistence, or publication rules after a failure.
   been exercised. The new-state tests establish independence from the old SQLite
   index, while the HTTPS fixture establishes SDK request/response behavior.
 - Source data must stay static. Identity checks and rescans detect common changes;
-  they do not implement an instantaneous snapshot. If the initial inventory never
-  finished, resuming restarts that scan before any data can be published.
+  they do not implement an instantaneous snapshot. An interrupted initial inventory
+  has no durable baseline. Resume refuses that job and asks for a new backup; it
+  never silently replaces the baseline with a later scan.
 - The scope is one writer per remote repository. flock protects one local state,
   not multiple clients using different state directories against the same prefix.
 - Restore publication uses Linux `renameat2(RENAME_NOREPLACE)`. Unsupported filesystems

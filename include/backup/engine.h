@@ -26,7 +26,7 @@ public:
     const std::string& current_job() const { return current_job_; }
 
 private:
-    Json run(Database& database, const std::string& job);
+    Json run(Database& database, const std::string& job, bool new_job = false);
     Repository& repository_;
     std::string current_job_;
 };

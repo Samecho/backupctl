@@ -41,6 +41,9 @@ Jobs move through `scanning -> uploading -> manifest -> committing -> committed`
 An interrupted or failed job keeps its original job and snapshot IDs. `resume`
 checks the original source identity and inventory before continuing. Remote success
 is recorded locally only after a successful request or reconciliation.
+The initial inventory is one transaction. A job left in `scanning` has no durable
+baseline; `resume` refuses it and requires a new backup job. It does not rescan a
+possibly changed source under the old snapshot ID.
 
 Chunks are uploaded first, then the full manifest, then a small commit descriptor
 using `If-None-Match: *`. Only commit descriptors are visible to `list`. A lost final

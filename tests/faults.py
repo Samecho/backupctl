@@ -77,6 +77,37 @@ class FaultTest(unittest.TestCase):
                     self.assertEqual(len(visible), 1 if point in {"commit_after", "committed_after"} else 0)
                     self.resume_and_check(before)
 
+    def test_incomplete_inventory_requires_a_new_job(self):
+        for point in ["scan_before", "scan_entry"]:
+            for changed in [False, True]:
+                with self.subTest(point=point, changed=changed):
+                    self.fresh()
+                    result = self.run_cli("backup", "--source", self.source,
+                                          env={"BACKUPCTL_FAILPOINT": point}, success=False)
+                    self.assertEqual(result.returncode, 86, result.stderr)
+                    job, snapshot, phase = self.job()
+                    self.assertEqual(phase, "scanning")
+                    with sqlite3.connect(self.state / "state.db") as database:
+                        self.assertEqual(database.execute(
+                            "SELECT count(*) FROM files WHERE job=?", (job,)).fetchone()[0], 0)
+                    if changed:
+                        (self.source / "new-after-interruption").write_bytes(b"new input")
+                    result = self.run_cli("resume", "--job", job, success=False)
+                    self.assertEqual(result.returncode, 2)
+                    failure = json.loads(result.stderr.strip().splitlines()[-1])
+                    self.assertEqual(failure["error"], "configuration")
+                    self.assertIn("start a new backup job", failure["message"])
+                    status = json.loads(self.run_cli("status", "--job", job).stdout)
+                    self.assertEqual(status["phase"], "scanning")
+                    self.assertEqual(status["error_message"], failure["message"])
+                    self.assertEqual(self.run_cli("list").stdout, "")
+                    self.assertFalse((self.remote / "objects/chunks").exists())
+                    fresh = json.loads(self.run_cli("backup", "--source", self.source).stdout)
+                    self.assertNotEqual(fresh["job_id"], job)
+                    self.assertNotEqual(fresh["snapshot_id"], snapshot)
+                    self.run_cli("verify", "--snapshot", fresh["snapshot_id"])
+                    (self.source / "new-after-interruption").unlink(missing_ok=True)
+
     def test_fixed_seed_fifty_sigkills(self):
         generator = random.Random(SEED)
         positions = []
