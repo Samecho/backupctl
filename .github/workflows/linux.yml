@@ -1,6 +1,10 @@
 name: Linux
 on:
   push:
+    paths-ignore:
+      - 'docs/**'
+      - 'benchmarks/results/**'
+      - 'README.md'
   pull_request:
   workflow_dispatch:
 permissions:
@@ -52,6 +56,8 @@ jobs:
             build/release/Testing/Temporary/LastTest.log
             build/release/compile_commands.json
             demo-data/events.jsonl
+            demo-data/s3-harness/events.jsonl
+            demo-data/s3-harness/summary.json
             restore-smoke-results/
           if-no-files-found: ignore
       - name: Package Linux executable
