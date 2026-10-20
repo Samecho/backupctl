@@ -3,6 +3,7 @@
 #include "backup/fs.h"
 
 #include <charconv>
+#include <chrono>
 #include <csignal>
 #include <iostream>
 #include <map>
@@ -74,6 +75,7 @@ void on_signal(int) { cancelled = 1; }
 } // namespace
 
 int main(int argc, char** argv) {
+    auto command_started = std::chrono::steady_clock::now();
     umask(0077);
     std::signal(SIGINT, on_signal);
     std::signal(SIGTERM, on_signal);
@@ -147,6 +149,8 @@ int main(int argc, char** argv) {
             });
             return 0;
         }
+        result["command_elapsed_seconds"] = std::chrono::duration<double>(
+            std::chrono::steady_clock::now() - command_started).count();
         std::cout << result.dump() << '\n';
         return 0;
     } catch (const std::exception& error) {

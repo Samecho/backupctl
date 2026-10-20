@@ -199,6 +199,8 @@ Json write_manifest(Database& database, Repository& repository, const std::strin
         check_cancelled();
         require(input.integer(5) == 1 && valid_hash(input.text(4)), "integrity", "incomplete file");
         ++files;
+        require(input.integer(1) >= 0 && bytes <= INT64_MAX - input.integer(1),
+                "unsupported", "logical snapshot size exceeds format limit");
         bytes += input.integer(1);
         emit({{"type", "file"}, {"id", files}, {"path", input.text(0)},
               {"size", input.integer(1)}, {"mode", input.integer(2)},
@@ -335,6 +337,9 @@ Json Engine::run(Database& database, const std::string& job) {
     auto saved_commit = query.text(7);
     auto commit_key = "snapshots/" + snapshot + ".json";
     uint64_t uploaded_chunks = 0, uploaded_raw = 0, uploaded_payload = 0, reused = 0;
+    double scan_seconds = 0, source_check_seconds = 0, process_seconds = 0;
+    double manifest_seconds = 0, commit_seconds = 0;
+    auto mark = std::chrono::steady_clock::now();
     try {
         if (!saved_commit.empty() && repository_.store().head(commit_key)) {
             require(repository_.commit(snapshot).dump() == saved_commit,
@@ -356,8 +361,12 @@ Json Engine::run(Database& database, const std::string& job) {
             transaction.commit();
             checkpoint("scan_after");
         }
+        scan_seconds = elapsed_ns(mark) / 1e9;
+        mark = std::chrono::steady_clock::now();
         check_inventory(database, job, source);
+        source_check_seconds += elapsed_ns(mark) / 1e9;
         set_phase(database, job, "uploading");
+        mark = std::chrono::steady_clock::now();
         auto files = database.prepare("SELECT path,directory,device,inode,size,mode,mtime,ctime,hash "
                                       "FROM files WHERE job=? AND directory=0 ORDER BY path");
         files.bind(1, job);
@@ -437,8 +446,12 @@ Json Engine::run(Database& database, const std::string& job) {
             peak_queue = pool->peak_queue();
             pool->shutdown();
         }
+        process_seconds = elapsed_ns(mark) / 1e9;
+        mark = std::chrono::steady_clock::now();
         check_inventory(database, job, source);
+        source_check_seconds += elapsed_ns(mark) / 1e9;
         checkpoint("source_checked");
+        mark = std::chrono::steady_clock::now();
         set_phase(database, job, "manifest");
         fs::path manifest = repository_.state() / ("manifest-" + job + ".jsonl");
         auto commit = write_manifest(database, repository_, job, snapshot, created, manifest);
@@ -446,8 +459,12 @@ Json Engine::run(Database& database, const std::string& job) {
                             {{"repo-id", repository_.id()}, {"kind", "manifest"}},
                             string_field(commit, "manifest_sha256"));
         checkpoint("manifest_after");
+        manifest_seconds = elapsed_ns(mark) / 1e9;
+        mark = std::chrono::steady_clock::now();
         // Source checks are repeated after the potentially slow manifest upload.
         check_inventory(database, job, source);
+        source_check_seconds += elapsed_ns(mark) / 1e9;
+        mark = std::chrono::steady_clock::now();
         auto text = commit.dump();
         require(saved_commit.empty() || saved_commit == text, "integrity", "pending commit changed");
         database.prepare("UPDATE jobs SET phase='committing',commit_json=? WHERE id=?")
@@ -477,6 +494,7 @@ Json Engine::run(Database& database, const std::string& job) {
         }
         set_phase(database, job, "committed");
         checkpoint("committed_after");
+        commit_seconds = elapsed_ns(mark) / 1e9;
         std::error_code ignored;
         fs::remove(manifest, ignored);
         double elapsed = std::chrono::duration<double>(std::chrono::steady_clock::now() - started).count();
@@ -494,6 +512,13 @@ Json Engine::run(Database& database, const std::string& job) {
                 {"hash_worker_seconds", timing.hash_ns.load() / 1e9},
                 {"compression_worker_seconds", timing.compression_ns.load() / 1e9},
                 {"storage_worker_seconds", timing.storage_ns.load() / 1e9},
+                {"scan_seconds", scan_seconds}, {"source_check_seconds", source_check_seconds},
+                {"read_upload_seconds", process_seconds}, {"manifest_seconds", manifest_seconds},
+                {"commit_seconds", commit_seconds},
+                {"cpu_user_seconds", usage.ru_utime.tv_sec + usage.ru_utime.tv_usec / 1e6},
+                {"cpu_system_seconds", usage.ru_stime.tv_sec + usage.ru_stime.tv_usec / 1e6},
+                {"block_input_operations", usage.ru_inblock},
+                {"block_output_operations", usage.ru_oublock},
                 {"store", repository_.store().metrics.report()}};
     } catch (const Error& error) {
         database.prepare("UPDATE jobs SET error_category=?,error_message=? WHERE id=?")

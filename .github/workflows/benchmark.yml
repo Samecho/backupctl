@@ -1,0 +1,38 @@
+name: Offline benchmark
+on:
+  workflow_dispatch:
+    inputs:
+      stress:
+        description: Include 50 GiB logical input and 100000 files
+        type: boolean
+        default: true
+permissions:
+  contents: read
+jobs:
+  measure:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      VCPKG_ROOT: ${{ github.workspace }}/.deps/vcpkg
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.cache/vcpkg
+      VCPKG_DISABLE_METRICS: 1
+      VCPKG_MAX_CONCURRENCY: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: .cache/vcpkg
+          key: vcpkg-linux-${{ hashFiles('vcpkg.json') }}
+      - run: bash scripts/bootstrap.sh
+      - run: cmake --preset release
+      - run: cmake --build --preset release -j4
+      - name: Run repeatable synthetic workloads
+        run: >-
+          python3 benchmarks/run.py build/release/backupctl --output benchmark-results
+          --size-mib 64 --small-files 1000 --repeats 5
+          ${{ inputs.stress && '--stress' || '' }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: offline-benchmark-results
+          path: benchmark-results/
