@@ -8,6 +8,7 @@ namespace backup {
 
 extern std::atomic<bool> cancelled;
 void check_cancelled();
+Json job_status(const std::filesystem::path& state, const std::string& job);
 
 struct BackupOptions {
     size_t workers = 4;

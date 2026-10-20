@@ -114,6 +114,15 @@ class BackupTest(unittest.TestCase):
         self.assertEqual(limited["active_workers"], 1)
         self.assertEqual(limited["chunk_upload_bytes"], 0)
 
+    def test_status_works_without_remote_access(self):
+        (self.source / "file").write_bytes(b"contents")
+        result = self.backup()
+        (self.remote / "objects/repo.json/data").unlink()
+        status = self.call("status", "--job", result["job_id"])
+        self.assertEqual(status["phase"], "committed")
+        self.assertEqual(status["commit_confirmation"], "previously_confirmed")
+        self.assertFalse(status["remote_checked"])
+
 
 if __name__ == "__main__":
     unittest.main()

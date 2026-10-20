@@ -78,6 +78,10 @@ build/release/backupctl status --state demo-data/state --job JOB_ID
 build/release/backupctl resume --state demo-data/state --job JOB_ID
 ```
 
+`status` works from local state even if remote access is unavailable. It distinguishes
+a previously confirmed commit from a fresh remote check; use `verify` to check the
+remote contents again.
+
 `resume` retains the original snapshot ID and checks the frozen source inventory.
 It reads input again and reconciles existing remote chunks; it does not upload
 confirmed chunks again. An interrupted restore starts over in a new temporary

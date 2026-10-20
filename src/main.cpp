@@ -125,6 +125,10 @@ int main(int argc, char** argv) {
             require(args.command == "list", "configuration", "unknown command; see --help");
         }
         args.finish();
+        if (args.command == "status") {
+            std::cout << job_status(state, job).dump() << '\n';
+            return 0;
+        }
         Repository repository(state);
         engine = std::make_unique<Engine>(repository);
         Json result;

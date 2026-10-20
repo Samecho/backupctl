@@ -297,16 +297,24 @@ Json Engine::resume(const std::string& job) {
 }
 
 Json Engine::status(const std::string& job) {
+    return job_status(repository_.state(), job);
+}
+
+Json job_status(const fs::path& state, const std::string& job) {
     require(valid_id(job), "configuration", "invalid job ID");
-    Database database(repository_.state() / "state.db", true);
-    auto query = database.prepare("SELECT snapshot,phase,error_category,error_message,confirmed "
+    require(!fs::is_symlink(state), "configuration", "state directory is a symlink");
+    auto config = parse_json(read_small(state / "config.json", max_record_size));
+    Database database(state / "state.db", true);
+    auto query = database.prepare("SELECT snapshot,phase,error_category,error_message,confirmed,repo "
                                   "FROM jobs JOIN checkpoints ON jobs.id=checkpoints.job WHERE id=?");
     query.bind(1, job);
     require(query.row(), "configuration", "job does not exist");
+    require(query.text(5) == string_field(config, "repo_id"), "configuration", "job/repository mismatch");
     return {{"ok", true}, {"job_id", job}, {"snapshot_id", query.text(0)},
             {"phase", query.text(1)}, {"error_category", query.text(2)},
             {"error_message", query.text(3)}, {"confirmed_raw_bytes", query.integer(4)},
-            {"remote_committed", query.text(1) == "committed"}};
+            {"remote_committed", query.text(1) == "committed"}, {"remote_checked", false},
+            {"commit_confirmation", query.text(1) == "committed" ? "previously_confirmed" : "unconfirmed"}};
 }
 
 Json Engine::run(Database& database, const std::string& job) {
