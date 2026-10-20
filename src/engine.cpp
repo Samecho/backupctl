@@ -257,7 +257,8 @@ void confirm_file_object(Store& store, const std::string& key, const fs::path& f
 } // namespace
 
 Json Engine::backup(const fs::path& requested_source, const BackupOptions& options) {
-    require(options.workers >= 1 && options.workers <= 64 && options.memory_budget >= 32ULL * 1024 * 1024,
+    require(options.workers >= 1 && options.workers <= 64 && options.memory_budget >= 32ULL * 1024 * 1024 &&
+                options.memory_budget <= 4096ULL * 1024 * 1024,
             "configuration", "invalid workers or data buffer budget");
     require(!fs::is_symlink(fs::symlink_status(requested_source)), "unsupported", "source is a symlink");
     auto source = fs::canonical(requested_source);
@@ -320,6 +321,9 @@ Json Engine::run(Database& database, const std::string& job) {
     int64_t created = query.integer(4);
     size_t requested_workers = static_cast<size_t>(query.integer(5));
     uint64_t budget = static_cast<uint64_t>(query.integer(6));
+    require(requested_workers >= 1 && requested_workers <= 64 &&
+                budget >= 32ULL * 1024 * 1024 && budget <= 4096ULL * 1024 * 1024,
+            "configuration", "job contains invalid resource settings");
     // Include raw bytes, codec buffers, SDK stream copies, and codec context allowance.
     uint64_t slot_charge = chunk_size + 4 * ZSTD_compressBound(chunk_size) + 2 * 1024 * 1024;
     require(budget >= chunk_size + slot_charge, "configuration", "data budget cannot fit one chunk task");
@@ -341,13 +345,23 @@ Json Engine::run(Database& database, const std::string& job) {
     double manifest_seconds = 0, commit_seconds = 0;
     auto mark = std::chrono::steady_clock::now();
     try {
-        if (!saved_commit.empty() && repository_.store().head(commit_key)) {
-            require(repository_.commit(snapshot).dump() == saved_commit,
-                    "integrity", "snapshot commit conflicts with the pending job");
-            set_phase(database, job, "committed");
-            return {{"ok", true}, {"job_id", job}, {"snapshot_id", snapshot},
-                    {"phase", "committed"}, {"reconciled", true},
-                    {"chunk_upload_bytes", 0}, {"store", repository_.store().metrics.report()}};
+        if (!saved_commit.empty()) {
+            try {
+                if (repository_.store().head(commit_key)) {
+                    require(repository_.commit(snapshot).dump() == saved_commit,
+                            "integrity", "snapshot commit conflicts with the pending job");
+                    set_phase(database, job, "committed");
+                    return {{"ok", true}, {"job_id", job}, {"snapshot_id", snapshot},
+                            {"phase", "committed"}, {"reconciled", true},
+                            {"chunk_upload_bytes", 0}, {"store", repository_.store().metrics.report()}};
+                }
+            } catch (const Error& error) {
+                set_phase(database, job, "commit_unknown");
+                if (error.category() == "integrity") {
+                    throw;
+                }
+                throw Error("commit_unknown", "pending remote commit cannot be reconciled yet");
+            }
         }
         require(phase != "committed", "integrity", "previously committed snapshot is missing");
         if (phase == "scanning") {
@@ -486,10 +500,10 @@ Json Engine::run(Database& database, const std::string& job) {
             require(repository_.commit(snapshot).dump() == text,
                     "integrity", "published snapshot conflicts with this job");
         } catch (const Error& error) {
+            set_phase(database, job, "commit_unknown");
             if (!uncertain && error.category() == "integrity") {
                 throw;
             }
-            set_phase(database, job, "commit_unknown");
             throw Error("commit_unknown", "remote commit outcome requires reconciliation with resume");
         }
         set_phase(database, job, "committed");

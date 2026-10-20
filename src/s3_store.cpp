@@ -244,12 +244,13 @@ std::optional<ObjectInfo> S3Store::head(const std::string& key) {
             ++metrics.list;
             ++metrics.list_attempts;
             auto listed = impl_->client->ListObjectsV2(lookup);
-            if (listed.IsSuccess()) {
-                bool exists = !listed.GetResult().GetContents().empty() &&
-                    listed.GetResult().GetContents().front().GetKey() == impl_->key(key);
-                if (!exists) {
-                    return std::nullopt;
-                }
+            if (!listed.IsSuccess()) {
+                s3_error(listed.GetError());
+            }
+            bool exists = !listed.GetResult().GetContents().empty() &&
+                listed.GetResult().GetContents().front().GetKey() == impl_->key(key);
+            if (!exists) {
+                return std::nullopt;
             }
         }
         s3_error(outcome.GetError());
@@ -322,6 +323,8 @@ void S3Store::list(const std::string& prefix, const std::function<void(const std
             break;
         }
         require(!result.GetNextContinuationToken().empty(), "integrity", "missing S3 pagination token");
+        require(result.GetNextContinuationToken() != request.GetContinuationToken(),
+                "integrity", "S3 pagination did not advance");
         request.SetContinuationToken(result.GetNextContinuationToken());
     } while (true);
 }

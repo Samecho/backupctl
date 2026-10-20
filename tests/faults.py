@@ -153,6 +153,27 @@ class FaultTest(unittest.TestCase):
                     for path in self.source.iterdir():
                         self.assertEqual((target / path.name).read_bytes(), path.read_bytes())
 
+    def test_conflicting_commit_stays_unresolved_and_is_not_overwritten(self):
+        result = self.run_cli("backup", "--source", self.source,
+                              env={"BACKUPCTL_FAILPOINT": "commit_before"}, success=False)
+        self.assertEqual(result.returncode, 86)
+        job, snapshot, _ = self.job()
+        with sqlite3.connect(self.state / "state.db") as db:
+            planned = json.loads(db.execute("SELECT commit_json FROM jobs WHERE id=?", (job,)).fetchone()[0])
+        planned["created_ns"] += 1
+        payload = json.dumps(planned).encode()
+        path = self.remote / "objects/snapshots" / f"{snapshot}.json"
+        path.mkdir(parents=True)
+        (path / "data").write_bytes(payload)
+        (path / "meta.json").write_text(json.dumps({
+            "size": len(payload), "metadata": {"encoded-sha256": hashlib.sha256(payload).hexdigest()}
+        }))
+        result = self.run_cli("resume", "--job", job, success=False)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(json.loads(result.stderr.strip().splitlines()[-1])["error"], "integrity")
+        self.assertEqual(self.job()[2], "commit_unknown")
+        self.assertEqual((path / "data").read_bytes(), payload)
+
 
 if __name__ == "__main__":
     unittest.main()

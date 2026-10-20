@@ -9,7 +9,7 @@ namespace backup {
 
 class Fd {
 public:
-    explicit Fd(int fd = -1);
+    explicit Fd(int fd);
     ~Fd();
     Fd(Fd&& other) noexcept;
     Fd& operator=(Fd&& other) noexcept;
