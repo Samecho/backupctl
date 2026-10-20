@@ -1,0 +1,31 @@
+{
+  "source_revision": "55532a68696ba277a508133c687b44e48a674709",
+  "binary_sha256": "1ca60881d26873462ffe96fb18e84e858bce4b8b15ed9777d33b211059e1775a",
+  "binary_location": "out/release/backupctl",
+  "platform": "Linux x86-64, Ubuntu 24.04 container on Docker Desktop WSL2",
+  "compiler": "GCC 13.3.0",
+  "cmake": "3.28.3",
+  "docker_engine": "29.5.3",
+  "docker_image": "sha256:6d3712b2897cc90362541432f500d216df49669dacbc231601b7e8213768d313",
+  "host_dependency_installs": 0,
+  "docker_settings_modified": false,
+  "existing_images_containers_volumes_removed": false,
+  "docker_recovery": "Quarantined stale zero-byte runtime IPC endpoints under the project cache while Docker was stopped; restarted the existing installation.",
+  "local_release": {
+    "ctest_suites": 5,
+    "named_tests": 34,
+    "passed": true,
+    "elapsed_seconds": 36.67
+  },
+  "local_acceptance_harness": {
+    "passed": true,
+    "snapshots": 4,
+    "cloud_contacted": false,
+    "fresh_state_restore": true,
+    "unchanged_chunk_upload_bytes": 0
+  },
+  "real_s3": {
+    "tested": false,
+    "reason": "No AWS profile, credentials, or test bucket was available."
+  }
+}

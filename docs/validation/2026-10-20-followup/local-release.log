@@ -1,0 +1,160 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 990B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/ubuntu:24.04
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 137B done
+#3 DONE 0.0s
+
+#4 [1/6] FROM docker.io/library/ubuntu:24.04@sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac
+#4 resolve docker.io/library/ubuntu:24.04@sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac 0.0s done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 32B done
+#5 DONE 0.0s
+
+#6 [3/6] RUN git init /opt/vcpkg     && git -C /opt/vcpkg remote add origin https://github.com/microsoft/vcpkg.git     && git -C /opt/vcpkg fetch --depth=1 origin 469a0504e4a6ebf6173d1c0f51a7fa34c382fd43     && git -C /opt/vcpkg checkout --detach FETCH_HEAD     && /opt/vcpkg/bootstrap-vcpkg.sh -disableMetrics
+#6 CACHED
+
+#7 [5/6] RUN /opt/vcpkg/vcpkg install --x-manifest-root=/opt/dependencies     --x-install-root=/opt/dependencies/vcpkg_installed --triplet=x64-linux
+#7 CACHED
+
+#8 [2/6] RUN apt-get update && apt-get install -y --no-install-recommends     build-essential clang cmake ninja-build git curl ca-certificates zip unzip tar     pkg-config autoconf automake libtool python3 gdb time linux-tools-generic     && rm -rf /var/lib/apt/lists/*
+#8 CACHED
+
+#9 [4/6] COPY vcpkg.json /opt/dependencies/vcpkg.json
+#9 CACHED
+
+#10 [6/6] WORKDIR /work
+#10 CACHED
+
+#11 exporting to image
+#11 exporting layers done
+#11 exporting manifest sha256:daf6968ac8dcda414dfab4b3c690699d117b03d2c8bbebaa4bff802be391ec23 done
+#11 exporting config sha256:b0ae1edf4ae4d4ae8df5fcb72e0c163d851e6ce7c52d40ea3c38f1af1df3172f done
+#11 exporting attestation manifest sha256:8144a69b9d1e8c5990d73a55059a14a3257d068519d57cc154ec14b69447a57d 0.0s done
+#11 exporting manifest list sha256:6d3712b2897cc90362541432f500d216df49669dacbc231601b7e8213768d313 done
+#11 naming to docker.io/library/backupctl-dev:local
+#11 naming to docker.io/library/backupctl-dev:local done
+#11 unpacking to docker.io/library/backupctl-dev:local done
+#11 DONE 0.1s
+a8fa69f0506004c2fb2cab82d07832b1debfaffbeb261cb34eb09897b8c004e9
+Preset CMake variables:
+
+  BUILD_TESTING="ON"
+  CMAKE_BUILD_TYPE="Release"
+  CMAKE_TOOLCHAIN_FILE:FILEPATH="/opt/vcpkg/scripts/buildsystems/vcpkg.cmake"
+  VCPKG_TARGET_TRIPLET="x64-linux"
+
+-- The CXX compiler identification is GNU 13.3.0
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- Found OpenSSL: /opt/dependencies/vcpkg_installed/x64-linux/lib/libcrypto.a (found version "3.6.5")  
+-- Found nlohmann_json: /opt/dependencies/vcpkg_installed/x64-linux/share/nlohmann_json/nlohmann_jsonConfig.cmake (found version "3.12.0") 
+-- Found AWS SDK for C++, Version: 1.11.900, Install Root:/opt/dependencies/vcpkg_installed/x64-linux, Platform Prefix:, Platform Dependent Libraries: pthread;curl
+-- Components specified for AWSSDK: s3;sts;sso;sso-oidc, application will be depending on libs: aws-cpp-sdk-s3;aws-cpp-sdk-sts;aws-cpp-sdk-sso;aws-cpp-sdk-sso-oidc;aws-cpp-sdk-core;AWS::aws-crt-cpp;AWS::aws-c-http;AWS::aws-c-mqtt;AWS::aws-c-cal;AWS::aws-c-auth;AWS::aws-c-common;AWS::aws-c-io;AWS::aws-checksums;AWS::aws-c-event-stream;AWS::aws-c-s3;AWS::aws-c-compression;AWS::aws-c-sdkutils;pthread;curl
+-- Try finding aws-cpp-sdk-core
+-- Found OpenSSL: /opt/dependencies/vcpkg_installed/x64-linux/lib/libcrypto.a (found version "3.6.5") found components: Crypto 
+-- Found OpenSSL: /opt/dependencies/vcpkg_installed/x64-linux/lib/libcrypto.a (found version "3.6.5")  
+-- Found ZLIB: optimized;/opt/dependencies/vcpkg_installed/x64-linux/lib/libz.a;debug;/opt/dependencies/vcpkg_installed/x64-linux/debug/lib/libz.a (found version "1.3.2")  
+-- Found OpenSSL: /opt/dependencies/vcpkg_installed/x64-linux/lib/libcrypto.a (found suitable version "3.6.5", minimum required is "3")  
+-- Found ZLIB: optimized;/opt/dependencies/vcpkg_installed/x64-linux/lib/libz.a;debug;/opt/dependencies/vcpkg_installed/x64-linux/debug/lib/libz.a (found suitable version "1.3.2", minimum required is "1")  
+-- Found aws-cpp-sdk-core
+-- Try finding aws-cpp-sdk-sso-oidc
+-- Found aws-cpp-sdk-sso-oidc
+-- Try finding aws-cpp-sdk-sso
+-- Found aws-cpp-sdk-sso
+-- Try finding aws-cpp-sdk-sts
+-- Found aws-cpp-sdk-sts
+-- Try finding aws-cpp-sdk-s3
+-- Found aws-cpp-sdk-s3
+-- Found Python3: /usr/bin/python3 (found version "3.12.3") found components: Interpreter 
+-- Configuring done (0.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: /work/build/release
+[1/16] Building CXX object CMakeFiles/backup_core.dir/src/database.cpp.o
+[2/16] Building CXX object CMakeFiles/backup_core.dir/src/codec.cpp.o
+[3/16] Building CXX object CMakeFiles/backup_core.dir/src/error.cpp.o
+[4/16] Building CXX object CMakeFiles/backup_core.dir/src/fs.cpp.o
+[5/16] Building CXX object CMakeFiles/backup_core.dir/src/repository.cpp.o
+[6/16] Building CXX object CMakeFiles/backup_core.dir/src/local_store.cpp.o
+[7/16] Building CXX object CMakeFiles/backup_core.dir/src/restore.cpp.o
+[8/16] Building CXX object CMakeFiles/backup_core.dir/src/engine.cpp.o
+/work/src/engine.cpp: In member function 'backup::Json backup::Engine::run(backup::Database&, const std::string&, bool)':
+/work/src/engine.cpp:391:34: warning: conversion from 'int64_t' {aka 'long int'} to 'double' may change value [-Wconversion]
+  391 |         scan_seconds = elapsed_ns(mark) / 1e9;
+      |                        ~~~~~~~~~~^~~~~~
+/work/src/engine.cpp:394:43: warning: conversion from 'int64_t' {aka 'long int'} to 'double' may change value [-Wconversion]
+  394 |         source_check_seconds += elapsed_ns(mark) / 1e9;
+      |                                 ~~~~~~~~~~^~~~~~
+/work/src/engine.cpp:476:37: warning: conversion from 'int64_t' {aka 'long int'} to 'double' may change value [-Wconversion]
+  476 |         process_seconds = elapsed_ns(mark) / 1e9;
+      |                           ~~~~~~~~~~^~~~~~
+/work/src/engine.cpp:479:43: warning: conversion from 'int64_t' {aka 'long int'} to 'double' may change value [-Wconversion]
+  479 |         source_check_seconds += elapsed_ns(mark) / 1e9;
+      |                                 ~~~~~~~~~~^~~~~~
+/work/src/engine.cpp:489:38: warning: conversion from 'int64_t' {aka 'long int'} to 'double' may change value [-Wconversion]
+  489 |         manifest_seconds = elapsed_ns(mark) / 1e9;
+      |                            ~~~~~~~~~~^~~~~~
+/work/src/engine.cpp:493:43: warning: conversion from 'int64_t' {aka 'long int'} to 'double' may change value [-Wconversion]
+  493 |         source_check_seconds += elapsed_ns(mark) / 1e9;
+      |                                 ~~~~~~~~~~^~~~~~
+/work/src/engine.cpp:524:36: warning: conversion from 'int64_t' {aka 'long int'} to 'double' may change value [-Wconversion]
+  524 |         commit_seconds = elapsed_ns(mark) / 1e9;
+      |                          ~~~~~~~~~~^~~~~~
+/work/src/engine.cpp:541:60: warning: conversion from 'std::__atomic_base<long int>::__int_type' {aka 'long int'} to 'double' may change value [-Wconversion]
+  541 |                 {"hash_worker_seconds", timing.hash_ns.load() / 1e9},
+      |                                         ~~~~~~~~~~~~~~~~~~~^~
+/work/src/engine.cpp:542:74: warning: conversion from 'std::__atomic_base<long int>::__int_type' {aka 'long int'} to 'double' may change value [-Wconversion]
+  542 |                 {"compression_worker_seconds", timing.compression_ns.load() / 1e9},
+      |                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+/work/src/engine.cpp:543:66: warning: conversion from 'std::__atomic_base<long int>::__int_type' {aka 'long int'} to 'double' may change value [-Wconversion]
+  543 |                 {"storage_worker_seconds", timing.storage_ns.load() / 1e9},
+      |                                            ~~~~~~~~~~~~~~~~~~~~~~^~
+/work/src/engine.cpp:547:77: warning: conversion from '__suseconds_t' {aka 'long int'} to 'double' may change value [-Wconversion]
+  547 |                 {"cpu_user_seconds", usage.ru_utime.tv_sec + usage.ru_utime.tv_usec / 1e6},
+      |                                                              ~~~~~~~~~~~~~~~^~~~~~~
+/work/src/engine.cpp:547:53: warning: conversion from '__time_t' {aka 'long int'} to 'double' may change value [-Wconversion]
+  547 |                 {"cpu_user_seconds", usage.ru_utime.tv_sec + usage.ru_utime.tv_usec / 1e6},
+      |                                      ~~~~~~~~~~~~~~~^~~~~~
+/work/src/engine.cpp:548:79: warning: conversion from '__suseconds_t' {aka 'long int'} to 'double' may change value [-Wconversion]
+  548 |                 {"cpu_system_seconds", usage.ru_stime.tv_sec + usage.ru_stime.tv_usec / 1e6},
+      |                                                                ~~~~~~~~~~~~~~~^~~~~~~
+/work/src/engine.cpp:548:55: warning: conversion from '__time_t' {aka 'long int'} to 'double' may change value [-Wconversion]
+  548 |                 {"cpu_system_seconds", usage.ru_stime.tv_sec + usage.ru_stime.tv_usec / 1e6},
+      |                                        ~~~~~~~~~~~~~~~^~~~~~
+[9/16] Building CXX object CMakeFiles/backup_tests.dir/tests/test_codec.cpp.o
+[10/16] Building CXX object CMakeFiles/backupctl.dir/src/main.cpp.o
+[11/16] Building CXX object CMakeFiles/backup_core.dir/src/s3_store.cpp.o
+[12/16] Linking CXX static library libbackup_core.a
+[13/16] Building CXX object CMakeFiles/backup_tests.dir/tests/test_storage.cpp.o
+[14/16] Linking CXX executable backupctl
+[15/16] Building CXX object CMakeFiles/backup_tests.dir/tests/test_pool.cpp.o
+[16/16] Linking CXX executable backup_tests
+Test project /work/build/release
+    Start 1: unit
+1/5 Test #1: unit .............................   Passed    0.06 sec
+    Start 2: integration
+2/5 Test #2: integration ......................   Passed    1.62 sec
+    Start 3: faults
+3/5 Test #3: faults ...........................   Passed   27.58 sec
+    Start 4: security
+4/5 Test #4: security .........................   Passed    2.67 sec
+    Start 5: s3_contract
+5/5 Test #5: s3_contract ......................   Passed    4.73 sec
+
+100% tests passed, 0 tests failed out of 5
+
+Total Test time (real) =  36.67 sec

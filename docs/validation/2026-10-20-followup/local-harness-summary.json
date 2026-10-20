@@ -1,0 +1,19 @@
+{
+  "backend": "local-harness-check",
+  "bucket": null,
+  "prefix": null,
+  "region": null,
+  "profile": null,
+  "read_profile": null,
+  "binary_sha256": "1ca60881d26873462ffe96fb18e84e858bce4b8b15ed9777d33b211059e1775a",
+  "remote_objects_retained": true,
+  "passed": true,
+  "snapshot_ids": [
+    "ffab4b679052557865199027590d1ce2",
+    "fcac36718c4a8cb2673b61c7cb35d31d",
+    "616a5d3250914590c3a2659232098cec",
+    "3db05772a8c0bd0b004383c037aae548"
+  ],
+  "unchanged_chunk_upload_bytes": 0,
+  "fresh_state_restore": true
+}
