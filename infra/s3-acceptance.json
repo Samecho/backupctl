@@ -1,0 +1,210 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Private, disposable backupctl S3 acceptance storage and short-lived GitHub Actions access.",
+  "Parameters": {
+    "GitHubSubject": {
+      "Type": "String",
+      "Default": "repo:Samecho@78562835/backupctl@1426593746:ref:refs/heads/main",
+      "AllowedPattern": "repo:[A-Za-z0-9_.-]+@[0-9]+/[A-Za-z0-9_.-]+@[0-9]+:ref:refs/heads/main",
+      "Description": "Exact immutable OIDC subject from the repository API. Only the main branch is trusted."
+    },
+    "ExistingGitHubProviderArn": {
+      "Type": "String",
+      "Default": "",
+      "AllowedPattern": "^$|arn:aws:iam::[0-9]{12}:oidc-provider/token.actions.githubusercontent.com",
+      "Description": "Leave empty for a new account. Reuse the provider ARN if this account already has GitHub OIDC."
+    }
+  },
+  "Conditions": {
+    "CreateGitHubProvider": {
+      "Fn::Equals": [{"Ref": "ExistingGitHubProviderArn"}, ""]
+    }
+  },
+  "Resources": {
+    "TestBucket": {
+      "Type": "AWS::S3::Bucket",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "BucketEncryption": {
+          "ServerSideEncryptionConfiguration": [
+            {"ServerSideEncryptionByDefault": {"SSEAlgorithm": "AES256"}}
+          ]
+        },
+        "OwnershipControls": {"Rules": [{"ObjectOwnership": "BucketOwnerEnforced"}]},
+        "PublicAccessBlockConfiguration": {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true
+        },
+        "LifecycleConfiguration": {
+          "Rules": [
+            {
+              "Id": "expire-disposable-acceptance-input",
+              "Status": "Enabled",
+              "Prefix": "backupctl/test/",
+              "ExpirationInDays": 7,
+              "AbortIncompleteMultipartUpload": {"DaysAfterInitiation": 1}
+            }
+          ]
+        },
+        "Tags": [{"Key": "Project", "Value": "backupctl-acceptance"}]
+      }
+    },
+    "TlsOnly": {
+      "Type": "AWS::S3::BucketPolicy",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "Bucket": {"Ref": "TestBucket"},
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Deny",
+              "Principal": "*",
+              "Action": "s3:*",
+              "Resource": [
+                {"Fn::GetAtt": ["TestBucket", "Arn"]},
+                {"Fn::Sub": "${TestBucket.Arn}/*"}
+              ],
+              "Condition": {"Bool": {"aws:SecureTransport": "false"}}
+            }
+          ]
+        }
+      }
+    },
+    "GitHubProvider": {
+      "Type": "AWS::IAM::OIDCProvider",
+      "Condition": "CreateGitHubProvider",
+      "Properties": {
+        "Url": "https://token.actions.githubusercontent.com",
+        "ClientIdList": ["sts.amazonaws.com"]
+      }
+    },
+    "WriterRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "Description": "Synthetic acceptance writes and reads in the dedicated test prefix.",
+        "MaxSessionDuration": 3600,
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [{
+            "Effect": "Allow",
+            "Principal": {"Federated": {"Fn::If": ["CreateGitHubProvider", {"Ref": "GitHubProvider"}, {"Ref": "ExistingGitHubProviderArn"}]}},
+            "Action": "sts:AssumeRoleWithWebIdentity",
+            "Condition": {"StringEquals": {
+              "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+              "token.actions.githubusercontent.com:sub": {"Ref": "GitHubSubject"}
+            }}
+          }]
+        },
+        "Policies": [{
+          "PolicyName": "test-prefix-write",
+          "PolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": "s3:ListBucket",
+                "Resource": {"Fn::GetAtt": ["TestBucket", "Arn"]},
+                "Condition": {"StringLike": {"s3:prefix": ["backupctl/test", "backupctl/test/*"]}}
+              },
+              {
+                "Effect": "Allow",
+                "Action": ["s3:GetObject", "s3:PutObject"],
+                "Resource": {"Fn::Sub": "${TestBucket.Arn}/backupctl/test/*"}
+              }
+            ]
+          }
+        }]
+      }
+    },
+    "ReaderRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "Description": "Restore-only acceptance access; no write or delete permission.",
+        "MaxSessionDuration": 3600,
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [{
+            "Effect": "Allow",
+            "Principal": {"Federated": {"Fn::If": ["CreateGitHubProvider", {"Ref": "GitHubProvider"}, {"Ref": "ExistingGitHubProviderArn"}]}},
+            "Action": "sts:AssumeRoleWithWebIdentity",
+            "Condition": {"StringEquals": {
+              "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+              "token.actions.githubusercontent.com:sub": {"Ref": "GitHubSubject"}
+            }}
+          }]
+        },
+        "Policies": [{
+          "PolicyName": "test-prefix-read",
+          "PolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": "s3:ListBucket",
+                "Resource": {"Fn::GetAtt": ["TestBucket", "Arn"]},
+                "Condition": {"StringLike": {"s3:prefix": ["backupctl/test", "backupctl/test/*"]}}
+              },
+              {
+                "Effect": "Allow",
+                "Action": "s3:GetObject",
+                "Resource": {"Fn::Sub": "${TestBucket.Arn}/backupctl/test/*"}
+              }
+            ]
+          }
+        }]
+      }
+    },
+    "CleanupRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "Description": "Delete disposable acceptance objects after evidence has been saved.",
+        "MaxSessionDuration": 3600,
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [{
+            "Effect": "Allow",
+            "Principal": {"Federated": {"Fn::If": ["CreateGitHubProvider", {"Ref": "GitHubProvider"}, {"Ref": "ExistingGitHubProviderArn"}]}},
+            "Action": "sts:AssumeRoleWithWebIdentity",
+            "Condition": {"StringEquals": {
+              "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+              "token.actions.githubusercontent.com:sub": {"Ref": "GitHubSubject"}
+            }}
+          }]
+        },
+        "Policies": [{
+          "PolicyName": "test-prefix-cleanup",
+          "PolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": "s3:ListBucket",
+                "Resource": {"Fn::GetAtt": ["TestBucket", "Arn"]},
+                "Condition": {"StringLike": {"s3:prefix": ["backupctl/test", "backupctl/test/*"]}}
+              },
+              {
+                "Effect": "Allow",
+                "Action": "s3:DeleteObject",
+                "Resource": {"Fn::Sub": "${TestBucket.Arn}/backupctl/test/*"}
+              }
+            ]
+          }
+        }]
+      }
+    }
+  },
+  "Outputs": {
+    "Bucket": {"Value": {"Ref": "TestBucket"}},
+    "Region": {"Value": {"Ref": "AWS::Region"}},
+    "Prefix": {"Value": "backupctl/test"},
+    "WriterRoleArn": {"Value": {"Fn::GetAtt": ["WriterRole", "Arn"]}},
+    "ReaderRoleArn": {"Value": {"Fn::GetAtt": ["ReaderRole", "Arn"]}},
+    "CleanupRoleArn": {"Value": {"Fn::GetAtt": ["CleanupRole", "Arn"]}},
+    "GitHubSubject": {"Value": {"Ref": "GitHubSubject"}}
+  }
+}
