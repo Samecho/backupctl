@@ -1,0 +1,25 @@
+{
+  "name": "backupctl",
+  "version-string": "0.1.0",
+  "builtin-baseline": "469a0504e4a6ebf6173d1c0f51a7fa34c382fd43",
+  "dependencies": [
+    "gtest",
+    "nlohmann-json",
+    "openssl",
+    "sqlite3",
+    { "name": "zstd", "default-features": false }
+  ],
+  "default-features": ["s3"],
+  "features": {
+    "s3": {
+      "description": "AWS S3 and the default credential chain",
+      "dependencies": [
+        {
+          "name": "aws-sdk-cpp",
+          "default-features": false,
+          "features": ["s3", "sts", "sso", "sso-oidc"]
+        }
+      ]
+    }
+  }
+}

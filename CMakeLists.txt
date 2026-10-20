@@ -1,0 +1,44 @@
+cmake_minimum_required(VERSION 3.25)
+project(backupctl VERSION 0.1.0 LANGUAGES CXX)
+
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    message(FATAL_ERROR "backupctl targets Linux. Use the project container on Windows.")
+endif()
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+option(BACKUPCTL_S3 "Build the AWS S3 adapter" ON)
+set(BACKUPCTL_SANITIZER "" CACHE STRING "address or thread (separate builds)")
+
+find_package(OpenSSL REQUIRED)
+find_package(zstd CONFIG REQUIRED)
+find_package(unofficial-sqlite3 CONFIG REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
+find_package(Threads REQUIRED)
+
+add_library(backup_core src/codec.cpp)
+target_include_directories(backup_core PUBLIC include)
+target_link_libraries(backup_core PUBLIC OpenSSL::Crypto zstd::libzstd_static
+    unofficial::sqlite3::sqlite3 nlohmann_json::nlohmann_json Threads::Threads)
+target_compile_options(backup_core PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
+
+if(BACKUPCTL_SANITIZER STREQUAL "address")
+    target_compile_options(backup_core PUBLIC -fsanitize=address,undefined -fno-omit-frame-pointer)
+    target_link_options(backup_core PUBLIC -fsanitize=address,undefined)
+elseif(BACKUPCTL_SANITIZER STREQUAL "thread")
+    target_compile_options(backup_core PUBLIC -fsanitize=thread -fno-omit-frame-pointer)
+    target_link_options(backup_core PUBLIC -fsanitize=thread)
+elseif(NOT BACKUPCTL_SANITIZER STREQUAL "")
+    message(FATAL_ERROR "Unknown sanitizer: ${BACKUPCTL_SANITIZER}")
+endif()
+
+include(CTest)
+if(BUILD_TESTING)
+    find_package(GTest CONFIG REQUIRED)
+    add_executable(backup_tests tests/test_codec.cpp)
+    target_link_libraries(backup_tests PRIVATE backup_core GTest::gtest_main)
+    add_test(NAME unit COMMAND backup_tests)
+endif()

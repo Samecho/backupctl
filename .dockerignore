@@ -1,0 +1,8 @@
+.git
+.cache
+.deps
+build
+out
+demo-data
+benchmark-data
+vcpkg_installed
