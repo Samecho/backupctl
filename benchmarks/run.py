@@ -116,6 +116,7 @@ def main():
     if status.exists():
         (args.output / "dependencies.txt").write_text(status.read_text())
     rows = []
+    (args.output / "environment.json").write_text(json.dumps(environment, indent=2) + "\n")
     with (args.output / "raw.jsonl").open("w") as raw:
         def record(value):
             rows.append(value)

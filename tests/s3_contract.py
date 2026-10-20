@@ -28,6 +28,7 @@ class Fixture:
         self.deny = False
         self.drop_commit_response = False
         self.bad_checksum = False
+        self.oversize = False
         self.problems = []
         self.lock = threading.Lock()
 
@@ -76,7 +77,10 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Connection", "close")
         self.end_headers()
         if self.command != "HEAD":
-            self.wfile.write(data)
+            try:
+                self.wfile.write(data)
+            except (BrokenPipeError, ConnectionResetError, ssl.SSLError):
+                pass  # A bounded client deliberately stops oversized responses.
         self.close_connection = True
 
     def handle_request(self):
@@ -135,6 +139,8 @@ class Handler(BaseHTTPRequestHandler):
             payload, metadata, checksum = fixture.objects[key]
             if fixture.bad_checksum and "/chunks/" in key:
                 checksum = base64.b64encode(b"x" * 32).decode()
+            if fixture.oversize and self.command == "GET" and "/chunks/" in key:
+                payload = b"x" * (8 * 1024 * 1024)
             self.reply(200, payload, {**metadata, "Content-Length": len(payload),
                                      "x-amz-checksum-sha256": checksum})
 
@@ -222,9 +228,23 @@ class S3ContractTest(unittest.TestCase):
     def test_sdk_download_checksum_is_enforced(self):
         snapshot = self.call("backup", "--source", self.source)["snapshot_id"]
         self.fixture.bad_checksum = True
-        self.call("verify", "--snapshot", snapshot, ok=False)
+        failure = self.call("verify", "--snapshot", snapshot, ok=False)
+        self.assertEqual(failure["error"], "integrity")
         self.call("restore", "--snapshot", snapshot, "--target", self.root / "bad", ok=False)
         self.assertFalse((self.root / "bad").exists())
+
+    def test_stream_download_limit_and_tls_verification(self):
+        snapshot = self.call("backup", "--source", self.source)["snapshot_id"]
+        self.fixture.oversize = True
+        failure = self.call("verify", "--snapshot", snapshot, ok=False)
+        self.assertEqual(failure["error"], "integrity")
+        self.fixture.oversize = False
+        key, unrelated = self.root / "unrelated-key.pem", self.root / "unrelated-cert.pem"
+        subprocess.run(["openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-days", "1",
+                        "-subj", "/CN=unrelated-ca", "-keyout", str(key), "-out", str(unrelated)],
+                       check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        self.environment["BACKUPCTL_TEST_CA"] = str(unrelated)
+        self.call("verify", "--snapshot", snapshot, ok=False)
 
 
 if __name__ == "__main__":

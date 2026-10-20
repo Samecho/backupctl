@@ -38,7 +38,10 @@ void s3_error(const Aws::S3::S3Error& error) {
     check_cancelled();
     int status = static_cast<int>(error.GetResponseCode());
     std::string category = "configuration";
-    if (status == 403 || status == 401) {
+    std::string details = std::string(error.GetExceptionName().c_str()) + " " + error.GetMessage().c_str();
+    if (details.find("checksum") != std::string::npos || details.find("Checksum") != std::string::npos) {
+        category = "integrity";
+    } else if (status == 403 || status == 401) {
         category = "permission";
     } else if (status == 404) {
         category = "integrity";
