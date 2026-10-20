@@ -110,7 +110,7 @@ int main(int argc, char** argv) {
         BackupOptions options;
         if (args.command == "backup") {
             source = args.required("--source");
-            options.workers = static_cast<size_t>(number(args.take("--workers", "1"), 1, 64));
+            options.workers = static_cast<size_t>(number(args.take("--workers", "4"), 1, 64));
             options.memory_budget = number(args.take("--memory-mib", "128"), 32, 4096) * 1024 * 1024;
         } else if (args.command == "resume" || args.command == "status") {
             job = args.required("--job");

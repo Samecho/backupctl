@@ -1,12 +1,14 @@
 #include "backup/engine.h"
 #include "backup/error.h"
 #include "backup/fs.h"
+#include "backup/thread_pool.h"
 
 #include <zstd.h>
 
 #include <array>
 #include <cerrno>
 #include <chrono>
+#include <deque>
 #include <fcntl.h>
 #include <fstream>
 #include <sys/resource.h>
@@ -14,7 +16,8 @@
 
 namespace backup {
 namespace fs = std::filesystem;
-volatile std::sig_atomic_t cancelled = 0;
+static_assert(std::atomic<bool>::is_always_lock_free);
+std::atomic<bool> cancelled{false};
 
 void check_cancelled() {
     require(!cancelled, "cancelled", "operation cancelled; the same job can be resumed");
@@ -65,9 +68,24 @@ struct ChunkResult {
     bool uploaded = false;
 };
 
-ChunkResult store_chunk(Repository& repository, const Bytes& raw) {
+struct PipelineTiming {
+    std::atomic<int64_t> hash_ns{0}, compression_ns{0}, storage_ns{0};
+};
+
+int64_t elapsed_ns(std::chrono::steady_clock::time_point start) {
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(
+        std::chrono::steady_clock::now() - start).count();
+}
+
+ChunkResult store_chunk(Repository& repository, const Bytes& raw, PipelineTiming& timing,
+                         std::array<std::mutex, 64>& locks) {
     check_cancelled();
+    auto started = std::chrono::steady_clock::now();
     ChunkResult result{sha256(raw), static_cast<int64_t>(raw.size()), 0, "", false};
+    timing.hash_ns += elapsed_ns(started);
+    // Fixed lock striping prevents duplicate concurrent PUTs without an unbounded hash set.
+    std::lock_guard<std::mutex> chunk_lock(locks[std::hash<std::string>{}(result.hash) % locks.size()]);
+    started = std::chrono::steady_clock::now();
     auto key = chunk_key(result.hash);
     Metadata metadata{{"repo-id", repository.id()}, {"raw-sha256", result.hash},
                       {"raw-size", std::to_string(raw.size())}, {"codec", std::string(codec_name)}};
@@ -87,11 +105,16 @@ ChunkResult store_chunk(Repository& repository, const Bytes& raw) {
     auto existing = repository.store().head(key);
     if (existing) {
         inspect(*existing);
+        timing.storage_ns += elapsed_ns(started);
         return result;
     }
+    timing.storage_ns += elapsed_ns(started);
+    started = std::chrono::steady_clock::now();
     auto encoded = compress_chunk(raw);
     result.encoded_hash = sha256(encoded);
     result.encoded_size = static_cast<int64_t>(encoded.size());
+    timing.compression_ns += elapsed_ns(started);
+    started = std::chrono::steady_clock::now();
     checkpoint("chunk_put_before");
     try {
         result.uploaded = repository.store().put(key, encoded, metadata, result.encoded_hash);
@@ -109,6 +132,7 @@ ChunkResult store_chunk(Repository& repository, const Bytes& raw) {
     auto confirmed = repository.store().head(key);
     require(confirmed.has_value(), "integrity", "uploaded chunk is missing");
     inspect(*confirmed);
+    timing.storage_ns += elapsed_ns(started);
     return result;
 }
 
@@ -288,6 +312,22 @@ Json Engine::run(Database& database, const std::string& job) {
     fs::path source(query.text(2));
     auto phase = query.text(3);
     int64_t created = query.integer(4);
+    size_t requested_workers = static_cast<size_t>(query.integer(5));
+    uint64_t budget = static_cast<uint64_t>(query.integer(6));
+    // Include raw bytes, codec buffers, SDK stream copies, and codec context allowance.
+    uint64_t slot_charge = chunk_size + 4 * ZSTD_compressBound(chunk_size) + 2 * 1024 * 1024;
+    require(budget >= chunk_size + slot_charge, "configuration", "data budget cannot fit one chunk task");
+    size_t limit = static_cast<size_t>(std::min<uint64_t>((budget - chunk_size) / slot_charge,
+                                                         2 * requested_workers));
+    size_t workers = std::min(requested_workers, limit);
+    size_t peak_inflight = 0;
+    size_t peak_queue = 0;
+    PipelineTiming timing;
+    std::array<std::mutex, 64> chunk_locks;
+    std::unique_ptr<ThreadPool> pool;
+    if (workers > 1) {
+        pool = std::make_unique<ThreadPool>(workers, limit);
+    }
     auto saved_commit = query.text(7);
     auto commit_key = "snapshots/" + snapshot + ".json";
     uint64_t uploaded_chunks = 0, uploaded_raw = 0, uploaded_payload = 0, reused = 0;
@@ -329,6 +369,22 @@ Json Engine::run(Database& database, const std::string& job) {
                     "source_changed", "source file changed before read");
             Sha256 hash;
             int64_t total = 0, sequence = 0;
+            std::deque<std::pair<int64_t, std::future<ChunkResult>>> pending;
+            auto consume = [&](int64_t index, const ChunkResult& result) {
+                if (result.uploaded) {
+                    ++uploaded_chunks;
+                    uploaded_raw += static_cast<uint64_t>(result.raw_size);
+                    uploaded_payload += static_cast<uint64_t>(result.encoded_size);
+                } else {
+                    reused += static_cast<uint64_t>(result.raw_size);
+                }
+                record_chunk(database, job, expected.path, index, result);
+            };
+            auto drain = [&] {
+                auto& first = pending.front();
+                consume(first.first, first.second.get());
+                pending.pop_front();
+            };
             while (total < expected.size) {
                 Bytes raw(static_cast<size_t>(std::min<int64_t>(chunk_size, expected.size - total)));
                 size_t offset = 0;
@@ -344,16 +400,22 @@ Json Engine::run(Database& database, const std::string& job) {
                     offset += static_cast<size_t>(size);
                 }
                 hash.update(raw);
-                auto result = store_chunk(repository_, raw);
-                if (result.uploaded) {
-                    ++uploaded_chunks;
-                    uploaded_raw += static_cast<uint64_t>(result.raw_size);
-                    uploaded_payload += static_cast<uint64_t>(result.encoded_size);
-                } else {
-                    reused += static_cast<uint64_t>(result.raw_size);
-                }
-                record_chunk(database, job, expected.path, sequence++, result);
                 total += static_cast<int64_t>(raw.size());
+                if (pool) {
+                    pending.emplace_back(sequence++, pool->enqueue([&, raw = std::move(raw)] {
+                        return store_chunk(repository_, raw, timing, chunk_locks);
+                    }));
+                    peak_inflight = std::max(peak_inflight, pending.size());
+                    if (pending.size() == limit) {
+                        drain();
+                    }
+                } else {
+                    consume(sequence++, store_chunk(repository_, raw, timing, chunk_locks));
+                    peak_inflight = 1;
+                }
+            }
+            while (!pending.empty()) {
+                drain();
             }
             struct stat after{};
             if (fstat(input.get(), &after) < 0) {
@@ -366,6 +428,10 @@ Json Engine::run(Database& database, const std::string& job) {
                     "source_changed", "resumed file content changed");
             database.prepare("UPDATE files SET hash=?,complete=1 WHERE job=? AND path=?")
                 .bind(1, digest).bind(2, job).bind(3, expected.path).run();
+        }
+        if (pool) {
+            peak_queue = pool->peak_queue();
+            pool->shutdown();
         }
         check_inventory(database, job, source);
         checkpoint("source_checked");
@@ -417,6 +483,13 @@ Json Engine::run(Database& database, const std::string& job) {
                 {"new_chunks", uploaded_chunks}, {"new_raw_bytes", uploaded_raw},
                 {"reused_raw_bytes", reused}, {"chunk_upload_bytes", uploaded_payload},
                 {"elapsed_seconds", elapsed}, {"peak_rss_kib", usage.ru_maxrss},
+                {"requested_workers", requested_workers}, {"active_workers", workers},
+                {"inflight_limit", limit}, {"peak_inflight_chunks", peak_inflight},
+                {"peak_queued_chunks", peak_queue}, {"data_budget_bytes", budget},
+                {"data_buffer_bound_bytes", chunk_size + limit * slot_charge},
+                {"hash_worker_seconds", timing.hash_ns.load() / 1e9},
+                {"compression_worker_seconds", timing.compression_ns.load() / 1e9},
+                {"storage_worker_seconds", timing.storage_ns.load() / 1e9},
                 {"store", repository_.store().metrics.report()}};
     } catch (const Error& error) {
         database.prepare("UPDATE jobs SET error_category=?,error_message=? WHERE id=?")

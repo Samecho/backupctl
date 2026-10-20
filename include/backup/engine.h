@@ -6,11 +6,11 @@
 
 namespace backup {
 
-extern volatile std::sig_atomic_t cancelled;
+extern std::atomic<bool> cancelled;
 void check_cancelled();
 
 struct BackupOptions {
-    size_t workers = 1;
+    size_t workers = 4;
     uint64_t memory_budget = 128ULL * 1024 * 1024;
 };
 
