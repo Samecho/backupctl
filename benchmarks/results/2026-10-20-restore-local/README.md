@@ -31,5 +31,8 @@ The backup buffer reservation was 119,865,344 bytes, within the 128 MiB budget.
 All three processes stayed below 512 MiB RSS.
 
 These are single offline acceptance runs. They do not establish repeatable disk
-throughput, real S3 behavior, or power-loss durability. The same invocation also
-runs the small-file case; its records are saved separately when complete.
+throughput, real S3 behavior, or power-loss durability. After all five dense-data
+records completed, the duplicate local small-file phase was intentionally stopped:
+the independent [100,000-file CI round trip](../2026-10-20-restore-ci/README.md) had
+already passed. No partial small-file result is counted as a pass here. The wrapper
+exported the records and removed its temporary container after that cancellation.

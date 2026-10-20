@@ -29,3 +29,11 @@ the project image; no host packages, shell profiles, or Git settings were change
 The harness result is explicitly `local-harness-check`. No AWS profile, credentials,
 or test bucket was available, so this does not establish real S3/IAM acceptance.
 The runnable cloud entry point is documented in [S3 setup](../../s3.md).
+
+Full resource acceptance is saved separately: the
+[50 GiB random-file restore](../../../benchmarks/results/2026-10-20-restore-local/README.md)
+passed in the four-CPU, 8-GiB local Linux container, and the
+[100,000-file restore](../../../benchmarks/results/2026-10-20-restore-ci/README.md)
+passed on independent Linux CI. Both used a fresh state database and an independent
+inventory comparison. The duplicate local small-file phase was stopped after the
+CI result passed; its partial result is not counted as a successful acceptance run.

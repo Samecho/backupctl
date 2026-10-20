@@ -1,0 +1,17 @@
+{
+  "dense_data": {
+    "passed": true,
+    "complete_records": 5,
+    "independent_inventory_matches": true,
+    "fresh_state": true
+  },
+  "duplicate_local_small_files": {
+    "status": "intentionally_stopped",
+    "reason": "The independent 100000-file Linux CI round trip had already passed.",
+    "counted_as_passed": false
+  },
+  "complete_small_files_evidence": "https://github.com/Samecho/backupctl/actions/runs/39475472549",
+  "temporary_container_removed": true,
+  "synthetic_scratch_data_removed": true,
+  "exported_local_records": "out/restore-scale-578b3c9469ed4c8c8a2fc946d7d46c10"
+}
