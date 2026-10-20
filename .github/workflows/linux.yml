@@ -39,6 +39,10 @@ jobs:
           python3 benchmarks/restore_scale.py build/release/backupctl
           --work benchmark-data/restore-smoke --output restore-smoke-results
           --size-mib 16 --small-files 64
+      - name: Check cloud acceptance harness offline
+        run: >-
+          python3 scripts/s3_acceptance.py build/release/backupctl
+          --work demo-data/s3-harness --local-store demo-data/s3-harness-remote --test-crash
       - name: Save diagnostics
         if: always()
         uses: actions/upload-artifact@v4
