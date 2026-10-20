@@ -15,6 +15,7 @@
 
 #include <fcntl.h>
 #include <fstream>
+#include <cstdlib>
 #include <sstream>
 #include <streambuf>
 #include <unistd.h>
@@ -142,6 +143,17 @@ struct S3Store::Impl {
         options.connectTimeoutMs = 3000;
         options.requestTimeoutMs = 15000;
         options.httpRequestTimeoutMs = 30000;
+#ifdef BACKUPCTL_TESTING
+        if (const char* endpoint = std::getenv("BACKUPCTL_TEST_S3_ENDPOINT")) {
+            require(std::string(endpoint).starts_with("https://127.0.0.1:"),
+                    "configuration", "SDK contract tests require a loopback HTTPS endpoint");
+            options.endpointOverride = endpoint;
+            options.useVirtualAddressing = false;
+            const char* certificate = std::getenv("BACKUPCTL_TEST_CA");
+            require(certificate != nullptr, "configuration", "test CA is missing");
+            options.caFile = certificate;
+        }
+#endif
         options.retryStrategy = Aws::MakeShared<Aws::Client::DefaultRetryStrategy>("backupctl", 2, 100);
         options.executor = Aws::MakeShared<Aws::Utils::Threading::PooledThreadExecutor>("backupctl", 2);
         client = std::make_unique<Aws::S3::S3Client>(options);

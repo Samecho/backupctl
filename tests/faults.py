@@ -5,7 +5,6 @@ import json
 import os
 from pathlib import Path
 import random
-import shutil
 import sqlite3
 import subprocess
 import sys
@@ -105,7 +104,11 @@ class FaultTest(unittest.TestCase):
             process.kill()
             process.communicate(timeout=10)
             self.assertEqual(process.returncode, -9)
-            positions.append({"iteration": iteration, "delay_seconds": delay, "phase": self.job()[2]})
+            with sqlite3.connect(self.state / "state.db") as db:
+                confirmed = db.execute("SELECT confirmed FROM checkpoints WHERE job=?", (before[0],)).fetchone()[0]
+            positions.append({"iteration": iteration, "delay_seconds": delay,
+                              "phase": self.job()[2], "confirmed_raw_bytes": confirmed,
+                              "remote_chunk_objects": len(list((self.remote / "objects/chunks").rglob("data")))})
             self.resume_and_check(before)
         print(json.dumps({"seed": SEED, "sigkill_positions": positions}))
 

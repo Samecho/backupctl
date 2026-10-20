@@ -6,3 +6,6 @@ out
 demo-data
 benchmark-data
 vcpkg_installed
+.env
+.aws
+benchmark-results
