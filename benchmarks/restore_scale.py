@@ -47,11 +47,10 @@ def generate(source, size_mib, small_files):
     source.mkdir()
     if size_mib:
         generator = random.Random(SEED)
-        with (source / "dense-mixed.bin").open("wb") as output:
+        with (source / "dense-random.bin").open("wb") as output:
             for _ in range(size_mib // 4):
-                # Every block is written, with unique random bytes and a compressible half.
-                output.write(generator.randbytes(CHUNK // 2))
-                output.write(b"\0" * (CHUNK // 2))
+                # Write unique random bytes throughout, without truncate or sparse holes.
+                output.write(generator.randbytes(CHUNK))
             output.flush()
             os.fsync(output.fileno())
     for i in range(small_files):

@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       size_mib:
-        description: Dense mixed input size in MiB (multiple of 4; runner disk is limited)
+        description: Dense random input size in MiB (multiple of 4; runner disk is limited)
         type: number
         default: 1024
       small_files:

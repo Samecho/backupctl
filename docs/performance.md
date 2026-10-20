@@ -33,7 +33,7 @@ python3 benchmarks/restore_scale.py build/release/backupctl \
   --work benchmark-data/restore-scale --output out/restore-scale
 ```
 
-It writes all 50 GiB of mixed random/compressible input, checks physical allocation,
+It writes all 50 GiB of pseudorandom input, checks physical allocation,
 backs up and verifies, restores from a fresh state database, and compares contents,
 modes, and timestamps. It repeats the full sequence for 100,000 small files.
 The workload needs about 155 GiB of free Linux filesystem space. Peak RSS for backup,
