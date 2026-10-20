@@ -19,7 +19,7 @@ find_package(unofficial-sqlite3 CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(Threads REQUIRED)
 
-add_library(backup_core src/codec.cpp src/fs.cpp src/database.cpp src/local_store.cpp
+add_library(backup_core src/error.cpp src/codec.cpp src/fs.cpp src/database.cpp src/local_store.cpp
     src/repository.cpp src/engine.cpp src/restore.cpp)
 target_include_directories(backup_core PUBLIC include)
 target_link_libraries(backup_core PUBLIC OpenSSL::Crypto zstd::libzstd_static

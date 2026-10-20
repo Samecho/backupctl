@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import random
+import sqlite3
 import subprocess
 import sys
 import tempfile
@@ -122,6 +123,44 @@ class BackupTest(unittest.TestCase):
         self.assertEqual(status["phase"], "committed")
         self.assertEqual(status["commit_confirmation"], "previously_confirmed")
         self.assertFalse(status["remote_checked"])
+
+    def test_worker_filesystem_and_json_errors_are_persisted(self):
+        (self.source / "file").write_bytes(b"contents")
+        chunks = self.remote / "objects/chunks"
+        chunks.write_bytes(b"not a directory")
+        for workers in [1, 4]:
+            failure = self.call("backup", "--source", self.source, "--workers", workers, ok=False)
+            self.assertEqual(failure["error"], "io")
+            status = self.call("status", "--job", failure["job_id"])
+            self.assertEqual(status["error_category"], failure["error"])
+            self.assertEqual(status["error_message"], failure["message"])
+        chunks.unlink()
+        self.backup()
+        metadata = next(chunks.rglob("meta.json"))
+        metadata.write_text("{broken json", encoding="utf-8")
+        for workers in [1, 4]:
+            failure = self.call("backup", "--source", self.source, "--workers", workers, ok=False)
+            self.assertEqual(failure["error"], "integrity")
+            status = self.call("status", "--job", failure["job_id"])
+            self.assertEqual(status["error_category"], failure["error"])
+            self.assertEqual(status["error_message"], failure["message"])
+
+    def test_error_recording_failure_preserves_original_error(self):
+        (self.source / "file").write_bytes(b"contents")
+        self.backup()
+        metadata = next((self.remote / "objects/chunks").rglob("meta.json"))
+        metadata.write_text("{broken json", encoding="utf-8")
+        with sqlite3.connect(self.state / "state.db") as database:
+            database.executescript("""
+                CREATE TRIGGER deny_error_record BEFORE UPDATE OF error_category ON jobs
+                WHEN NEW.error_category != '' BEGIN
+                    SELECT RAISE(ABORT, 'secondary checkpoint failure');
+                END;
+            """)
+        failure = self.backup(ok=False)
+        self.assertEqual(failure["error"], "integrity")
+        self.assertIn("parse_error", failure["message"])
+        self.assertNotIn("secondary checkpoint failure", failure["message"])
 
 
 if __name__ == "__main__":

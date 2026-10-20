@@ -1,7 +1,9 @@
 #pragma once
 
+#include <exception>
 #include <stdexcept>
 #include <string>
+#include <utility>
 
 namespace backup {
 
@@ -15,6 +17,8 @@ public:
 private:
     std::string category_;
 };
+
+Error describe_error(std::exception_ptr failure);
 
 inline void require(bool condition, const std::string& category, const std::string& message) {
     if (!condition) {

@@ -546,9 +546,14 @@ Json Engine::run(Database& database, const std::string& job) {
                 {"block_input_operations", usage.ru_inblock},
                 {"block_output_operations", usage.ru_oublock},
                 {"store", repository_.store().metrics.report()}};
-    } catch (const Error& error) {
-        database.prepare("UPDATE jobs SET error_category=?,error_message=? WHERE id=?")
-            .bind(1, error.category()).bind(2, error.what()).bind(3, job).run();
+    } catch (...) {
+        try {
+            auto error = describe_error(std::current_exception());
+            database.prepare("UPDATE jobs SET error_category=?,error_message=? WHERE id=?")
+                .bind(1, error.category()).bind(2, error.what()).bind(3, job).run();
+        } catch (...) {
+            // A full or unwritable state database must not replace the original failure.
+        }
         throw;
     }
 }

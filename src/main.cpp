@@ -157,17 +157,9 @@ int main(int argc, char** argv) {
             std::chrono::steady_clock::now() - command_started).count();
         std::cout << result.dump() << '\n';
         return 0;
-    } catch (const std::exception& error) {
-        std::string category = "io";
-        if (const auto* known = dynamic_cast<const Error*>(&error)) {
-            category = known->category();
-        } else if (const auto* file = dynamic_cast<const fs::filesystem_error*>(&error)) {
-            if (file->code() == std::errc::permission_denied) {
-                category = "permission";
-            }
-        } else if (dynamic_cast<const Json::exception*>(&error)) {
-            category = "integrity";
-        }
+    } catch (...) {
+        auto error = describe_error(std::current_exception());
+        const auto& category = error.category();
         if (engine && !engine->current_job().empty()) {
             job = engine->current_job();
         }
