@@ -10,6 +10,7 @@
 #include <fcntl.h>
 #include <fstream>
 #include <limits>
+#include <sys/resource.h>
 #include <unistd.h>
 
 namespace backup {
@@ -245,9 +246,12 @@ Json read_files(Repository& repository, Database& index, const Json& commit,
             apply_metadata(directory.get(), directories.integer(1), directories.integer(2));
         }
     }
+    struct rusage usage{};
+    getrusage(RUSAGE_SELF, &usage);
     return {{"ok", true}, {"snapshot_id", commit.at("snapshot_id")},
             {"verified_files", commit.at("files")}, {"verified_bytes", commit.at("bytes")},
             {"verified_chunks", verified_chunks},
+            {"peak_rss_kib", usage.ru_maxrss},
             {"elapsed_seconds", std::chrono::duration<double>(
                 std::chrono::steady_clock::now() - started).count()},
             {"store", repository.store().metrics.report()}};

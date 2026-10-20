@@ -34,6 +34,11 @@ jobs:
         run: ctest --preset release
       - name: Run offline demonstration
         run: python3 scripts/demo.py build/release/backupctl --work demo-data
+      - name: Check dense-data restore measurement
+        run: >-
+          python3 benchmarks/restore_scale.py build/release/backupctl
+          --work benchmark-data/restore-smoke --output restore-smoke-results
+          --size-mib 16 --small-files 64
       - name: Save diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -43,6 +48,7 @@ jobs:
             build/release/Testing/Temporary/LastTest.log
             build/release/compile_commands.json
             demo-data/events.jsonl
+            restore-smoke-results/
           if-no-files-found: ignore
       - name: Package Linux executable
         uses: actions/upload-artifact@v4

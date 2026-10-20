@@ -1,0 +1,44 @@
+name: Restore scale
+on:
+  workflow_dispatch:
+    inputs:
+      size_mib:
+        description: Dense mixed input size in MiB (multiple of 4; runner disk is limited)
+        type: number
+        default: 1024
+      small_files:
+        description: Number of small files to back up, verify, and restore
+        type: number
+        default: 100000
+permissions:
+  contents: read
+jobs:
+  restore:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      VCPKG_ROOT: ${{ github.workspace }}/.deps/vcpkg
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.cache/vcpkg
+      VCPKG_DISABLE_METRICS: 1
+      VCPKG_MAX_CONCURRENCY: 4
+      SCALE_SIZE_MIB: ${{ inputs.size_mib }}
+      SCALE_SMALL_FILES: ${{ inputs.small_files }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: .cache/vcpkg
+          key: vcpkg-linux-${{ hashFiles('vcpkg.json') }}
+      - run: bash scripts/bootstrap.sh
+      - run: cmake --preset release
+      - run: cmake --build --preset release -j4
+      - name: Back up, verify, and restore with a fresh local index
+        run: >-
+          python3 benchmarks/restore_scale.py build/release/backupctl
+          --work benchmark-data/restore-scale --output restore-scale-results
+          --size-mib "$SCALE_SIZE_MIB" --small-files "$SCALE_SMALL_FILES"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: restore-scale-results
+          path: restore-scale-results/
