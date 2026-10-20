@@ -1,0 +1,28 @@
+{
+  "source_commit": "a64cdfb5d1e25c18fafe5a6969be467572c4eb8b",
+  "workflow_run": 39385675792,
+  "workflow_url": "https://github.com/Samecho/backupctl/actions/runs/39385675792",
+  "platform": "Ubuntu 24.04, Linux x86-64",
+  "configurations": {
+    "gcc_release": "passed",
+    "clang_release": "passed",
+    "asan_ubsan": "passed",
+    "tsan": "passed"
+  },
+  "ctest_suites": 5,
+  "named_tests": 30,
+  "deterministic_backup_interruptions": 100,
+  "seeded_sigkills": 50,
+  "restore_publication_interruptions": 20,
+  "seed": 20261020,
+  "real_s3_tested": false,
+  "binary_path": "out/release/backupctl",
+  "binary_sha256": "786422142ba6ccda1670a8bd4780174a40d95e1f81dbf222c32e52fb4bbbe198",
+  "evidence_sha256": {
+    "asan-ubsan.log": "095028fa33817f556603506eb8fdebd7d7b4d0b089eac965c09b4a9095572e8b",
+    "clang.log": "28f5c348a1d224fe7d1f779f41937caecaaa419a26cc877c1647c5c545158c4b",
+    "demo.jsonl": "086734f80b99f8cc0bf1cf9a452bf302a0ed1f3cd72c97a292b38e5bd8e8003e",
+    "gcc.log": "9a4eb5abe93e65ce0458fac513ceb6d4a88babbd4483e6c2754de9d9741167b9",
+    "tsan.log": "acec48a50eafe74144f41f3f1c50850afe9916cc1a56391fe628cd491e25382c"
+  }
+}

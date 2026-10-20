@@ -18,8 +18,9 @@ acceptance remains pending even after the adapter compiles and offline tests pas
 
 The [Linux workflow](../.github/workflows/linux.yml) builds GCC Release and Clang
 Release, then runs ASan/UBSan and TSan in separate builds. All four configurations
-passed at [commit 7350ff2](https://github.com/Samecho/backupctl/actions/runs/39384452749).
-Later checks and their exact source revisions are available in the Actions history.
+passed at [commit a64cdfb](https://github.com/Samecho/backupctl/actions/runs/39385675792).
+The [saved logs and demo](validation/2026-10-20/README.md) include their exact source
+revision and executable hash. Later checks are available in the Actions history.
 The checks use synthetic files only. No personal input or cloud credentials are
 needed.
 
@@ -33,9 +34,9 @@ needed.
 | A10 | Existing target and dangling symlink refused; symlinks, FIFO and invalid UTF-8 source names rejected; unreadable input tested as a non-root user |
 | Recovery | Ten backup checkpoints ×10 repeats; 50 seeded actual SIGKILLs; two restore publication checkpoints ×10 repeats |
 | Unknown outcomes | Lost chunk/manifest/commit response; unreadable commit stays unresolved; conflicting descriptor is never overwritten |
-| Resources | Bounded queue and results; requested workers reduced to fit the budget; one writer lock; SIGTERM joins workers |
+| Resources | Bounded queue and results; requested workers reduced to fit the budget; one writer lock; SIGTERM joins workers; status works without remote access |
 | Write failures | Permission errors and injected ENOSPC refuse commit/restore publication |
-| SDK contract | Actual SDK + local HTTPS: SigV4 header, conditional PUT, encoded SHA-256, SSE-S3, missing-key HEAD 403 reconciliation, three attempts on 503, one on denied PUT, lost commit response, checksum rejection |
+| SDK contract | Actual SDK + local HTTPS: SigV4 header, conditional PUT, encoded SHA-256, SSE-S3, missing-key HEAD 403 reconciliation, three attempts on 503, one on denied PUT, lost commit response, checksum rejection, bounded downloads, unrelated CA refused |
 | Demonstration | `scripts/demo.py` runs the complete first/incremental/interrupted/old-version/corruption sequence in CI |
 | Measurements | 500 backup runs plus 100 verify/restore pairs; separate 50 GiB and 100,000-file backup resource checks |
 
