@@ -1,0 +1,49 @@
+name: Linux
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: linux-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      VCPKG_ROOT: ${{ github.workspace }}/.deps/vcpkg
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.cache/vcpkg
+      VCPKG_DISABLE_METRICS: 1
+      VCPKG_MAX_CONCURRENCY: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore dependency cache
+        uses: actions/cache@v4
+        with:
+          path: .cache/vcpkg
+          key: vcpkg-linux-${{ hashFiles('vcpkg.json') }}
+      - name: Set up pinned vcpkg
+        run: |
+          mkdir -p .deps/vcpkg .cache/vcpkg
+          git -C .deps/vcpkg init
+          git -C .deps/vcpkg remote add origin https://github.com/microsoft/vcpkg.git
+          git -C .deps/vcpkg fetch --depth=1 origin 469a0504e4a6ebf6173d1c0f51a7fa34c382fd43
+          git -C .deps/vcpkg checkout --detach FETCH_HEAD
+          .deps/vcpkg/bootstrap-vcpkg.sh -disableMetrics
+      - name: Configure
+        run: cmake --preset release
+      - name: Build
+        run: cmake --build --preset release -j4
+      - name: Test
+        run: ctest --preset release
+      - name: Save diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-diagnostics
+          path: |
+            build/release/Testing/Temporary/LastTest.log
+            build/release/compile_commands.json
+          if-no-files-found: ignore
