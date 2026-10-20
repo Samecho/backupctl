@@ -1,0 +1,12 @@
+.cache/
+.deps/
+build/
+out/
+vcpkg_installed/
+CMakeUserPresets.json
+*.db
+*.db-*
+.env
+demo-data/
+benchmark-data/
+__pycache__/
