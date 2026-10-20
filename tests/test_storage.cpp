@@ -60,3 +60,8 @@ TEST_F(StorageTest, PublishNeverReplacesExistingDirectory) {
     publish_directory(directory / "temporary", directory / "target");
     EXPECT_TRUE(fs::is_directory(directory / "target"));
 }
+
+TEST_F(StorageTest, BoundedReaderRejectsFifoWithoutWaiting) {
+    ASSERT_EQ(mkfifo((directory / "fifo").c_str(), 0600), 0);
+    EXPECT_THROW(read_small(directory / "fifo", 1024), Error);
+}

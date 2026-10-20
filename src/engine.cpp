@@ -353,6 +353,8 @@ Json Engine::run(Database& database, const std::string& job) {
                     set_phase(database, job, "committed");
                     return {{"ok", true}, {"job_id", job}, {"snapshot_id", snapshot},
                             {"phase", "committed"}, {"reconciled", true},
+                            {"logical_bytes", integer(parse_json(saved_commit), "bytes")},
+                            {"compression_ratio", nullptr},
                             {"chunk_upload_bytes", 0}, {"store", repository_.store().metrics.report()}};
                 }
             } catch (const Error& error) {
@@ -518,6 +520,8 @@ Json Engine::run(Database& database, const std::string& job) {
                 {"logical_bytes", commit.at("bytes")}, {"files", commit.at("files")},
                 {"new_chunks", uploaded_chunks}, {"new_raw_bytes", uploaded_raw},
                 {"reused_raw_bytes", reused}, {"chunk_upload_bytes", uploaded_payload},
+                {"compression_ratio", uploaded_raw == 0 ? Json(nullptr) :
+                    Json(static_cast<double>(uploaded_payload) / static_cast<double>(uploaded_raw))},
                 {"elapsed_seconds", elapsed}, {"peak_rss_kib", usage.ru_maxrss},
                 {"requested_workers", requested_workers}, {"active_workers", workers},
                 {"inflight_limit", limit}, {"peak_inflight_chunks", peak_inflight},

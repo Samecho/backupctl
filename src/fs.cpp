@@ -246,7 +246,12 @@ void atomic_write(const fs::path& path, const std::string& data) {
 }
 
 std::string read_small(const fs::path& path, size_t limit) {
-    Fd fd(open(path.c_str(), O_RDONLY | O_NOFOLLOW | O_CLOEXEC));
+    Fd fd(open(path.c_str(), O_RDONLY | O_NOFOLLOW | O_NONBLOCK | O_CLOEXEC));
+    struct stat info{};
+    if (fstat(fd.get(), &info) < 0) {
+        io_error("stat bounded input file");
+    }
+    require(S_ISREG(info.st_mode), "integrity", "bounded input must be a regular file");
     std::string value;
     std::array<char, 8192> buffer{};
     while (true) {

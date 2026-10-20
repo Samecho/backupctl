@@ -54,7 +54,7 @@ std::string hash_file(const std::filesystem::path& path) {
         input.read(reinterpret_cast<char*>(buffer.data()), buffer.size());
         hash.update(std::span(buffer.data(), static_cast<size_t>(input.gcount())));
     }
-    require(input.eof(), "io", "cannot read file for hashing");
+    require(input.eof() && !input.bad(), "io", "cannot read file for hashing");
     return hash.finish();
 }
 
