@@ -19,11 +19,16 @@ find_package(unofficial-sqlite3 CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(Threads REQUIRED)
 
-add_library(backup_core src/codec.cpp src/fs.cpp src/database.cpp src/local_store.cpp)
+add_library(backup_core src/codec.cpp src/fs.cpp src/database.cpp src/local_store.cpp
+    src/repository.cpp src/engine.cpp src/restore.cpp)
 target_include_directories(backup_core PUBLIC include)
 target_link_libraries(backup_core PUBLIC OpenSSL::Crypto zstd::libzstd_static
     unofficial::sqlite3::sqlite3 nlohmann_json::nlohmann_json Threads::Threads)
 target_compile_options(backup_core PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
+
+add_executable(backupctl src/main.cpp)
+target_link_libraries(backupctl PRIVATE backup_core)
+install(TARGETS backupctl RUNTIME DESTINATION bin)
 
 if(BACKUPCTL_SANITIZER STREQUAL "address")
     target_compile_options(backup_core PUBLIC -fsanitize=address,undefined -fno-omit-frame-pointer)
@@ -42,4 +47,8 @@ if(BUILD_TESTING)
     add_executable(backup_tests tests/test_codec.cpp tests/test_storage.cpp)
     target_link_libraries(backup_tests PRIVATE backup_core GTest::gtest_main)
     add_test(NAME unit COMMAND backup_tests)
+    find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_test(NAME integration COMMAND ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/integration.py $<TARGET_FILE:backupctl>)
+    set_tests_properties(integration PROPERTIES TIMEOUT 180)
 endif()
