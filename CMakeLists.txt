@@ -30,6 +30,13 @@ add_executable(backupctl src/main.cpp)
 target_link_libraries(backupctl PRIVATE backup_core)
 install(TARGETS backupctl RUNTIME DESTINATION bin)
 
+if(BACKUPCTL_S3)
+    find_package(AWSSDK CONFIG REQUIRED COMPONENTS s3 sts sso sso-oidc)
+    target_sources(backup_core PRIVATE src/s3_store.cpp)
+    target_compile_definitions(backup_core PRIVATE BACKUPCTL_S3=1)
+    target_link_libraries(backup_core PUBLIC ${AWSSDK_LINK_LIBRARIES})
+endif()
+
 if(BACKUPCTL_SANITIZER STREQUAL "address")
     target_compile_options(backup_core PUBLIC -fsanitize=address,undefined -fno-omit-frame-pointer)
     target_link_options(backup_core PUBLIC -fsanitize=address,undefined)

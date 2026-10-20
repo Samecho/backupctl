@@ -3,6 +3,7 @@
 #include "backup/fs.h"
 
 #include <array>
+#include <algorithm>
 #include <cerrno>
 #include <chrono>
 #include <cstdlib>
@@ -20,7 +21,11 @@ Json StoreMetrics::report() const {
     return {{"head_requests", head.load()}, {"get_requests", get.load()},
             {"put_requests", put.load()}, {"list_requests", list.load()},
             {"successful_upload_bytes", uploaded.load()}, {"download_bytes", downloaded.load()},
-            {"objects_created", put_created.load()}};
+            {"objects_created", put_created.load()},
+            {"head_attempts", std::max(head.load(), head_attempts.load())},
+            {"get_attempts", std::max(get.load(), get_attempts.load())},
+            {"put_attempts", std::max(put.load(), put_attempts.load())},
+            {"list_attempts", std::max(list.load(), list_attempts.load())}};
 }
 
 void checkpoint(const std::string& name) {

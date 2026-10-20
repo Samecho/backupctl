@@ -23,6 +23,7 @@ struct ObjectInfo {
 
 struct StoreMetrics {
     std::atomic<uint64_t> head{0}, get{0}, put{0}, list{0};
+    std::atomic<uint64_t> head_attempts{0}, get_attempts{0}, put_attempts{0}, list_attempts{0};
     std::atomic<uint64_t> uploaded{0}, downloaded{0}, put_created{0};
     Json report() const;
 };

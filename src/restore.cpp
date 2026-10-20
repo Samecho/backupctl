@@ -5,6 +5,7 @@
 #include <zstd.h>
 
 #include <array>
+#include <algorithm>
 #include <chrono>
 #include <fcntl.h>
 #include <fstream>
