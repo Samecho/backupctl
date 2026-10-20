@@ -79,7 +79,7 @@ void parse_manifest(Database& index, const fs::path& manifest, const Json& commi
         if (!header) {
             require(type == "header" && integer(record, "version") == 1 &&
                         string_field(record, "repo_id") == repo &&
-                        string_field(record, "snapshot_id") == commit.at("snapshot_id") &&
+                        string_field(record, "snapshot_id") == string_field(commit, "snapshot_id") &&
                         integer(record, "chunk_size") == static_cast<int64_t>(chunk_size) &&
                         string_field(record, "codec") == codec_name,
                     "integrity", "manifest header conflicts with commit");

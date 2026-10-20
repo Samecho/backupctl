@@ -117,7 +117,8 @@ void scan_directory(int fd, const std::string& relative, size_t depth,
     if (!raw) {
         io_error("read source directory");
     }
-    std::unique_ptr<DIR, decltype(&closedir)> directory(raw, closedir);
+    auto close_directory = [](DIR* value) { closedir(value); };
+    std::unique_ptr<DIR, decltype(close_directory)> directory(raw, close_directory);
     while (true) {
         errno = 0;
         auto* entry = readdir(directory.get());
