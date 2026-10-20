@@ -162,6 +162,23 @@ class BackupTest(unittest.TestCase):
         self.assertIn("parse_error", failure["message"])
         self.assertNotIn("secondary checkpoint failure", failure["message"])
 
+    def test_setup_failure_is_persisted_before_workers_start(self):
+        (self.source / "file").write_bytes(b"contents")
+        self.backup(ok=False, env={"BACKUPCTL_FAILPOINT": "scan_after"})
+        with sqlite3.connect(self.state / "state.db") as database:
+            job = database.execute("SELECT id FROM jobs").fetchone()[0]
+            database.execute("UPDATE jobs SET workers=0 WHERE id=?", (job,))
+        failure = self.call("resume", "--job", job, ok=False)
+        self.assertEqual(failure["error"], "configuration")
+        status = self.call("status", "--job", job)
+        self.assertEqual(status["error_category"], failure["error"])
+        self.assertEqual(status["error_message"], failure["message"])
+        self.assertEqual(status["phase"], "uploading")
+        with sqlite3.connect(self.state / "state.db") as database:
+            database.execute("UPDATE jobs SET workers=1 WHERE id=?", (job,))
+        resumed = self.call("resume", "--job", job)
+        self.assertEqual(resumed["phase"], "committed")
+
 
 if __name__ == "__main__":
     unittest.main()

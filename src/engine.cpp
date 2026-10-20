@@ -318,41 +318,41 @@ Json job_status(const fs::path& state, const std::string& job) {
 }
 
 Json Engine::run(Database& database, const std::string& job, bool new_job) {
-    auto started = std::chrono::steady_clock::now();
-    auto query = database.prepare("SELECT snapshot,repo,source,phase,created,workers,budget,commit_json "
-                                  "FROM jobs WHERE id=?");
-    query.bind(1, job);
-    require(query.row() && query.text(1) == repository_.id(), "configuration", "job/repository mismatch");
-    auto snapshot = query.text(0);
-    fs::path source(query.text(2));
-    auto phase = query.text(3);
-    int64_t created = query.integer(4);
-    size_t requested_workers = static_cast<size_t>(query.integer(5));
-    uint64_t budget = static_cast<uint64_t>(query.integer(6));
-    require(requested_workers >= 1 && requested_workers <= 64 &&
-                budget >= 32ULL * 1024 * 1024 && budget <= 4096ULL * 1024 * 1024,
-            "configuration", "job contains invalid resource settings");
-    // Include raw bytes, codec buffers, SDK stream copies, and codec context allowance.
-    uint64_t slot_charge = chunk_size + 4 * ZSTD_compressBound(chunk_size) + 2 * 1024 * 1024;
-    require(budget >= chunk_size + slot_charge, "configuration", "data budget cannot fit one chunk task");
-    size_t limit = static_cast<size_t>(std::min<uint64_t>((budget - chunk_size) / slot_charge,
-                                                         2 * requested_workers));
-    size_t workers = std::min(requested_workers, limit);
-    size_t peak_inflight = 0;
-    size_t peak_queue = 0;
-    PipelineTiming timing;
-    std::array<std::mutex, 64> chunk_locks;
-    std::unique_ptr<ThreadPool> pool;
-    if (workers > 1) {
-        pool = std::make_unique<ThreadPool>(workers, limit);
-    }
-    auto saved_commit = query.text(7);
-    auto commit_key = "snapshots/" + snapshot + ".json";
-    uint64_t uploaded_chunks = 0, uploaded_raw = 0, uploaded_payload = 0, reused = 0;
-    double scan_seconds = 0, source_check_seconds = 0, process_seconds = 0;
-    double manifest_seconds = 0, commit_seconds = 0;
-    auto mark = std::chrono::steady_clock::now();
     try {
+        auto started = std::chrono::steady_clock::now();
+        auto query = database.prepare("SELECT snapshot,repo,source,phase,created,workers,budget,commit_json "
+                                      "FROM jobs WHERE id=?");
+        query.bind(1, job);
+        require(query.row() && query.text(1) == repository_.id(), "configuration", "job/repository mismatch");
+        auto snapshot = query.text(0);
+        fs::path source(query.text(2));
+        auto phase = query.text(3);
+        int64_t created = query.integer(4);
+        size_t requested_workers = static_cast<size_t>(query.integer(5));
+        uint64_t budget = static_cast<uint64_t>(query.integer(6));
+        require(requested_workers >= 1 && requested_workers <= 64 &&
+                    budget >= 32ULL * 1024 * 1024 && budget <= 4096ULL * 1024 * 1024,
+                "configuration", "job contains invalid resource settings");
+        // Include raw bytes, codec buffers, SDK stream copies, and codec context allowance.
+        uint64_t slot_charge = chunk_size + 4 * ZSTD_compressBound(chunk_size) + 2 * 1024 * 1024;
+        require(budget >= chunk_size + slot_charge, "configuration", "data budget cannot fit one chunk task");
+        size_t limit = static_cast<size_t>(std::min<uint64_t>((budget - chunk_size) / slot_charge,
+                                                             2 * requested_workers));
+        size_t workers = std::min(requested_workers, limit);
+        size_t peak_inflight = 0;
+        size_t peak_queue = 0;
+        PipelineTiming timing;
+        std::array<std::mutex, 64> chunk_locks;
+        std::unique_ptr<ThreadPool> pool;
+        if (workers > 1) {
+            pool = std::make_unique<ThreadPool>(workers, limit);
+        }
+        auto saved_commit = query.text(7);
+        auto commit_key = "snapshots/" + snapshot + ".json";
+        uint64_t uploaded_chunks = 0, uploaded_raw = 0, uploaded_payload = 0, reused = 0;
+        double scan_seconds = 0, source_check_seconds = 0, process_seconds = 0;
+        double manifest_seconds = 0, commit_seconds = 0;
+        auto mark = std::chrono::steady_clock::now();
         if (!saved_commit.empty()) {
             try {
                 if (repository_.store().head(commit_key)) {
