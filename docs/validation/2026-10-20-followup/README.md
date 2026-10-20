@@ -8,6 +8,10 @@ image, and exact test counts are recorded in `provenance.json`.
   on the container's Linux filesystem. All five CTest suites passed in 36.67 seconds.
   They contain 34 named tests, including the process-termination subcases.
 - `dependencies.txt`: the pinned vcpkg dependency versions used by that image.
+- `gcc.log`, `clang.log`, `asan-ubsan.log`, and `tsan.log`: full logs from the
+  [passing Linux workflow](https://github.com/Samecho/backupctl/actions/runs/39474502721).
+  Each configuration ran all 34 named tests. The release job also passed the dense
+  restore smoke check and the offline cloud acceptance harness.
 - `local-harness.jsonl` and `local-harness-summary.json`: the S3 acceptance script
   exercised against the offline store, including interruption, same-job resume,
   unchanged deduplication, and four fresh-state restores with metadata comparison.

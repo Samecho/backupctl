@@ -18,9 +18,12 @@ acceptance remains pending even after the adapter compiles and offline tests pas
 
 The [Linux workflow](../.github/workflows/linux.yml) builds GCC Release and Clang
 Release, then runs ASan/UBSan and TSan in separate builds. All four configurations
-passed at [commit a64cdfb](https://github.com/Samecho/backupctl/actions/runs/39385675792).
-The [saved logs and demo](validation/2026-10-20/README.md) include their exact source
-revision and executable hash. Later checks are available in the Actions history.
+passed with 34 named tests at
+[commit 55532a6](https://github.com/Samecho/backupctl/actions/runs/39474502721).
+The [follow-up logs](validation/2026-10-20-followup/README.md) include the actual
+Windows container build, executable hash, toolchain, and regression cases. The
+[earlier logs and demo](validation/2026-10-20/README.md) preserve their original source
+revision. Later checks are available in the Actions history.
 The checks use synthetic files only. No personal input or cloud credentials are
 needed.
 

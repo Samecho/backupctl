@@ -17,6 +17,15 @@
     "passed": true,
     "elapsed_seconds": 36.67
   },
+  "linux_ci": {
+    "run": "https://github.com/Samecho/backupctl/actions/runs/39474502721",
+    "revision": "55532a68696ba277a508133c687b44e48a674709",
+    "gcc_release": "passed",
+    "clang_release": "passed",
+    "asan_ubsan": "passed",
+    "tsan": "passed",
+    "named_tests_per_configuration": 34
+  },
   "local_acceptance_harness": {
     "passed": true,
     "snapshots": 4,

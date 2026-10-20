@@ -1,0 +1,132 @@
+Start testing: Oct 20 18:27 UTC
+----------------------------------------------------------
+1/5 Testing: unit
+1/5 Test: unit
+Command: "/home/runner/work/backupctl/backupctl/build/release/backup_tests"
+Directory: /home/runner/work/backupctl/backupctl/build/release
+"unit" start time: Oct 20 18:27 UTC
+Output:
+----------------------------------------------------------
+Running main() from /home/runner/work/backupctl/backupctl/.deps/vcpkg/buildtrees/gtest/src/v1.18.0-e6987f02b9.clean/googletest/src/gtest_main.cc
+[==========] Running 9 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 3 tests from Codec
+[ RUN      ] Codec.KnownSha256
+[       OK ] Codec.KnownSha256 (0 ms)
+[ RUN      ] Codec.CompressibleAndRandomRoundTrip
+[       OK ] Codec.CompressibleAndRandomRoundTrip (15 ms)
+[ RUN      ] Codec.RejectsExpansionCorruptionAndTrailingFrames
+[       OK ] Codec.RejectsExpansionCorruptionAndTrailingFrames (0 ms)
+[----------] 3 tests from Codec (16 ms total)
+
+[----------] 5 tests from StorageTest
+[ RUN      ] StorageTest.ConditionalObjectsAndChecksum
+[       OK ] StorageTest.ConditionalObjectsAndChecksum (5 ms)
+[ RUN      ] StorageTest.TransactionsRollbackAndLockExclusion
+[       OK ] StorageTest.TransactionsRollbackAndLockExclusion (7 ms)
+[ RUN      ] StorageTest.RejectsUnsafePathsAndSourceSymlinks
+[       OK ] StorageTest.RejectsUnsafePathsAndSourceSymlinks (0 ms)
+[ RUN      ] StorageTest.PublishNeverReplacesExistingDirectory
+[       OK ] StorageTest.PublishNeverReplacesExistingDirectory (0 ms)
+[ RUN      ] StorageTest.BoundedReaderRejectsFifoWithoutWaiting
+[       OK ] StorageTest.BoundedReaderRejectsFifoWithoutWaiting (0 ms)
+[----------] 5 tests from StorageTest (13 ms total)
+
+[----------] 1 test from ThreadPool
+[ RUN      ] ThreadPool.BoundedQueueAndExceptionPropagation
+[       OK ] ThreadPool.BoundedQueueAndExceptionPropagation (3 ms)
+[----------] 1 test from ThreadPool (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 9 tests from 3 test suites ran. (33 ms total)
+[  PASSED  ] 9 tests.
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"unit" end time: Oct 20 18:27 UTC
+"unit" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/5 Testing: integration
+2/5 Test: integration
+Command: "/usr/bin/python3.12" "/home/runner/work/backupctl/backupctl/tests/integration.py" "/home/runner/work/backupctl/backupctl/build/release/backupctl"
+Directory: /home/runner/work/backupctl/backupctl/build/release
+"integration" start time: Oct 20 18:27 UTC
+Output:
+----------------------------------------------------------
+........
+----------------------------------------------------------------------
+Ran 8 tests in 1.143s
+
+OK
+<end of output>
+Test time =   1.23 sec
+----------------------------------------------------------
+Test Passed.
+"integration" end time: Oct 20 18:27 UTC
+"integration" time elapsed: 00:00:01
+----------------------------------------------------------
+
+3/5 Testing: faults
+3/5 Test: faults
+Command: "/usr/bin/python3.12" "/home/runner/work/backupctl/backupctl/tests/faults.py" "/home/runner/work/backupctl/backupctl/build/release/backupctl"
+Directory: /home/runner/work/backupctl/backupctl/build/release
+"faults" start time: Oct 20 18:27 UTC
+Output:
+----------------------------------------------------------
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 16.963s
+
+OK
+{"seed": 20261020, "sigkill_positions": [{"iteration": 0, "delay_seconds": 0.12478136762765042, "phase": "uploading", "confirmed_raw_bytes": 16384, "remote_chunk_objects": 2}, {"iteration": 1, "delay_seconds": 0.12024357856576574, "phase": "uploading", "confirmed_raw_bytes": 16384, "remote_chunk_objects": 2}, {"iteration": 2, "delay_seconds": 0.1316135136853221, "phase": "manifest", "confirmed_raw_bytes": 24576, "remote_chunk_objects": 3}, {"iteration": 3, "delay_seconds": 0.03716973950784369, "phase": "uploading", "confirmed_raw_bytes": 0, "remote_chunk_objects": 0}, {"iteration": 4, "delay_seconds": 0.01372877849279203, "phase": "uploading", "confirmed_raw_bytes": 0, "remote_chunk_objects": 0}, {"iteration": 5, "delay_seconds": 0.13805376747355666, "phase": "manifest", "confirmed_raw_bytes": 24576, "remote_chunk_objects": 3}, {"iteration": 6, "delay_seconds": 0.08125255427338461, "phase": "uploading", "confirmed_raw_bytes": 8192, "remote_chunk_objects": 1}, {"iteration": 7, "delay_seconds": 0.02709174291040147, "phase": "uploading", "confirmed_raw_bytes": 0, "remote_chunk_objects": 0}, {"iteration": 8, "delay_seconds": 0.05431657534319463, "phase": "uploading", "confirmed_raw_bytes": 8192, "remote_chunk_objects": 1}, {"iteration": 9, "delay_seconds": 0.03576350225670007, "phase": "uploading", "confirmed_raw_bytes": 0, "remote_chunk_objects": 0}, {"iteration": 10, "delay_seconds": 0.04240285628006012, "phase": "uploading", "confirmed_raw_bytes": 8192, "remote_chunk_objects": 1}, {"iteration": 11, "delay_seconds": 0.01808590470869588, "phase": "uploading", "confirmed_raw_bytes": 0, "remote_chunk_objects": 0}, {"iteration": 12, "delay_seconds": 0.038698558585746626, "phase": "uploading", "confirmed_raw_bytes": 0, "remote_chunk_objects": 0}, {"iteration": 13, "delay_seconds": 0.10862784169842234, "phase": "uploading", "confirmed_raw_bytes": 16384, "remote_chunk_objects": 2}, {"iteration": 14, "delay_seconds": 0.03733235868797602, "phase": "uploading", "confirmed_raw_bytes": 0, "remote_chunk_objects": 0}, {"iteration": 15, "delay_seconds": 0.011874411747480088, "phase": "uploading", "confirmed_raw_bytes": 0, "remote_chunk_objects": 0}, {"iteration": 16, "delay_seconds": 0.028680900891482, "phase": "uploading", "confirmed_raw_bytes": 0, "remote_chunk_objects": 0}, {"iteration": 17, "delay_seconds": 0.15490907560113032, "phase": "manifest", "confirmed_raw_bytes": 24576, "remote_chunk_objects": 3}, {"iteration": 18, "delay_seconds": 0.11983379221688115, "phase": "uploading", "confirmed_raw_bytes": 16384, "remote_chunk_objects": 2}, {"iteration": 19, "delay_seconds": 0.04602913433779064, "phase": "uploading", "confirmed_raw_bytes": 8192, "remote_chunk_objects": 1}, {"iteration": 20, "delay_seconds": 0.0674926113405301, "phase": "uploading", "confirmed_raw_bytes": 8192, "remote_chunk_objects": 1}, {"iteration": 21, "delay_seconds": 0.15936833549585788, "phase": "manifest", "confirmed_raw_bytes": 24576, "remote_chunk_objects": 3}, {"iteration": 22, "delay_seconds": 0.1559850750183034, "phase": "manifest", "confirmed_raw_bytes": 24576, "remote_chunk_objects": 3}, {"iteration": 23, "delay_seconds": 0.03618063755036109, "phase": "uploading", "confirmed_raw_bytes": 0, "remote_chunk_objects": 0}, {"iteration": 24, "delay_seconds": 0.11096851582352475, "phase": "uploading", "confirmed_raw_bytes": 16384, "remote_chunk_objects": 2}, {"iteration": 25, "delay_seconds": 0.1472093766284649, "phase": "uploading", "confirmed_raw_bytes": 16384, "remote_chunk_objects": 2}, {"iteration": 26, "delay_seconds": 0.11752985839647996, "phase": "uploading", "confirmed_raw_bytes": 16384, "remote_chunk_objects": 2}, {"iteration": 27, "delay_seconds": 0.15827662099741027, "phase": "manifest", "confirmed_raw_bytes": 24576, "remote_chunk_objects": 3}, {"iteration": 28, "delay_seconds": 0.1284250990826558, "phase": "uploading", "confirmed_raw_bytes": 16384, "remote_chunk_objects": 2}, {"iteration": 29, "delay_seconds": 0.12770695382262837, "phase": "uploading", "confirmed_raw_bytes": 16384, "remote_chunk_objects": 2}, {"iteration": 30, "delay_seconds": 0.01852203583275483, "phase": "uploading", "confirmed_raw_bytes": 0, "remote_chunk_objects": 0}, {"iteration": 31, "delay_seconds": 0.09457506763195157, "phase": "uploading", "confirmed_raw_bytes": 16384, "remote_chunk_objects": 2}, {"iteration": 32, "delay_seconds": 0.01169544627485064, "phase": "uploading", "confirmed_raw_bytes": 0, "remote_chunk_objects": 0}, {"iteration": 33, "delay_seconds": 0.15975351211637312, "phase": "manifest", "confirmed_raw_bytes": 24576, "remote_chunk_objects": 3}, {"iteration": 34, "delay_seconds": 0.15933002486397835, "phase": "manifest", "confirmed_raw_bytes": 24576, "remote_chunk_objects": 3}, {"iteration": 35, "delay_seconds": 0.03764094719754514, "phase": "uploading", "confirmed_raw_bytes": 0, "remote_chunk_objects": 1}, {"iteration": 36, "delay_seconds": 0.15295377998080045, "phase": "manifest", "confirmed_raw_bytes": 24576, "remote_chunk_objects": 3}, {"iteration": 37, "delay_seconds": 0.03051659396746593, "phase": "uploading", "confirmed_raw_bytes": 0, "remote_chunk_objects": 0}, {"iteration": 38, "delay_seconds": 0.0927447308176172, "phase": "uploading", "confirmed_raw_bytes": 8192, "remote_chunk_objects": 1}, {"iteration": 39, "delay_seconds": 0.15180173246275253, "phase": "manifest", "confirmed_raw_bytes": 24576, "remote_chunk_objects": 3}, {"iteration": 40, "delay_seconds": 0.01847732508190318, "phase": "uploading", "confirmed_raw_bytes": 0, "remote_chunk_objects": 0}, {"iteration": 41, "delay_seconds": 0.011188954749888076, "phase": "uploading", "confirmed_raw_bytes": 0, "remote_chunk_objects": 0}, {"iteration": 42, "delay_seconds": 0.018815205359947143, "phase": "uploading", "confirmed_raw_bytes": 0, "remote_chunk_objects": 0}, {"iteration": 43, "delay_seconds": 0.033916232718962526, "phase": "uploading", "confirmed_raw_bytes": 0, "remote_chunk_objects": 0}, {"iteration": 44, "delay_seconds": 0.018325733885053916, "phase": "uploading", "confirmed_raw_bytes": 0, "remote_chunk_objects": 0}, {"iteration": 45, "delay_seconds": 0.11214654777938556, "phase": "uploading", "confirmed_raw_bytes": 16384, "remote_chunk_objects": 2}, {"iteration": 46, "delay_seconds": 0.03378777558376969, "phase": "uploading", "confirmed_raw_bytes": 0, "remote_chunk_objects": 0}, {"iteration": 47, "delay_seconds": 0.09003720412057788, "phase": "uploading", "confirmed_raw_bytes": 16384, "remote_chunk_objects": 2}, {"iteration": 48, "delay_seconds": 0.06672868612247972, "phase": "uploading", "confirmed_raw_bytes": 8192, "remote_chunk_objects": 1}, {"iteration": 49, "delay_seconds": 0.088180233294671, "phase": "uploading", "confirmed_raw_bytes": 16384, "remote_chunk_objects": 2}]}
+<end of output>
+Test time =  17.02 sec
+----------------------------------------------------------
+Test Passed.
+"faults" end time: Oct 20 18:27 UTC
+"faults" time elapsed: 00:00:17
+----------------------------------------------------------
+
+4/5 Testing: security
+4/5 Test: security
+Command: "/usr/bin/python3.12" "/home/runner/work/backupctl/backupctl/tests/security.py" "/home/runner/work/backupctl/backupctl/build/release/backupctl"
+Directory: /home/runner/work/backupctl/backupctl/build/release
+"security" start time: Oct 20 18:27 UTC
+Output:
+----------------------------------------------------------
+......
+----------------------------------------------------------------------
+Ran 6 tests in 2.089s
+
+OK
+<end of output>
+Test time =   2.14 sec
+----------------------------------------------------------
+Test Passed.
+"security" end time: Oct 20 18:27 UTC
+"security" time elapsed: 00:00:02
+----------------------------------------------------------
+
+5/5 Testing: s3_contract
+5/5 Test: s3_contract
+Command: "/usr/bin/python3.12" "/home/runner/work/backupctl/backupctl/tests/s3_contract.py" "/home/runner/work/backupctl/backupctl/build/release/backupctl"
+Directory: /home/runner/work/backupctl/backupctl/build/release
+"s3_contract" start time: Oct 20 18:27 UTC
+Output:
+----------------------------------------------------------
+....
+----------------------------------------------------------------------
+Ran 4 tests in 4.113s
+
+OK
+<end of output>
+Test time =   4.17 sec
+----------------------------------------------------------
+Test Passed.
+"s3_contract" end time: Oct 20 18:27 UTC
+"s3_contract" time elapsed: 00:00:04
+----------------------------------------------------------
+
+End testing: Oct 20 18:27 UTC
