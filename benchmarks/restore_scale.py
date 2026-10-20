@@ -87,6 +87,10 @@ def main():
         "binary_sha256": hashlib.sha256(binary.read_bytes()).hexdigest(),
         "platform": platform.platform(), "cpu": command("lscpu"), "filesystem": filesystem,
         "memory": Path("/proc/meminfo").read_text(), "seed": SEED,
+        "cgroup_cpu_max": Path("/sys/fs/cgroup/cpu.max").read_text().strip()
+            if Path("/sys/fs/cgroup/cpu.max").exists() else None,
+        "cgroup_memory_max": Path("/sys/fs/cgroup/memory.max").read_text().strip()
+            if Path("/sys/fs/cgroup/memory.max").exists() else None,
         "size_mib": args.size_mib, "small_files": args.small_files,
         "storage": "offline local store; dense source and dense restore", "network": "offline",
     }

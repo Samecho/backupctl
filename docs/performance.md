@@ -26,6 +26,26 @@ represent 50 GiB of physical disk reads, and these single acceptance runs are no
 used to claim stable throughput. The 50 GiB run tests backup resource use rather
 than allocating a 50 GiB restored directory on the CI runner.
 
+For a dense-data round trip and a 100,000-file restore, use the separate script:
+
+```sh
+python3 benchmarks/restore_scale.py build/release/backupctl \
+  --work benchmark-data/restore-scale --output out/restore-scale
+```
+
+It writes all 50 GiB of mixed random/compressible input, checks physical allocation,
+backs up and verifies, restores from a fresh state database, and compares contents,
+modes, and timestamps. It repeats the full sequence for 100,000 small files.
+The workload needs about 155 GiB of free Linux filesystem space. Peak RSS for backup,
+verify, and restore must each stay under 512 MiB. Input and restored data are removed
+after each successful comparison; failed workloads remain available for inspection.
+
+On Windows, first run `scripts/dev.ps1`, then `scripts/restore-scale.ps1`. The latter
+uses a temporary Linux container limited to four CPUs and 8 GiB, with the project
+mounted read-only. Results are exported under `out/restore-scale-<uuid>`. Only its
+own container is removed. The manual Restore scale workflow defaults to 1 GiB and
+100,000 files to fit the smaller hosted runner disk; it is not a 50 GiB substitute.
+
 CLI counters distinguish successful encoded upload payload from logical bytes,
 and chunk payload from manifest/commit overhead. An unchanged backup may have zero
 new chunk bytes while still issuing HEAD, PUT, and GET requests. Worker phase times
