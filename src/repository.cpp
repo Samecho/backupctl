@@ -80,6 +80,11 @@ Json initialize(const fs::path& requested_state, Json config) {
     fs::create_directories(state);
     fs::permissions(state, fs::perms::owner_all, fs::perm_options::replace);
     StateLock lock(state);
+    if (fs::exists(state / "config.json")) {
+        auto previous = parse_json(read_small(state / "config.json", max_record_size));
+        previous.erase("repo_id");
+        require(previous == config, "configuration", "state directory belongs to another configuration");
+    }
     auto store = make_store(config);
     Json format;
     if (store->head("repo.json")) {

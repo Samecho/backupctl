@@ -101,6 +101,19 @@ class BackupTest(unittest.TestCase):
         self.call("restore", "--snapshot", result["snapshot_id"], "--target", target, ok=False)
         self.assertFalse(target.exists())
 
+    def test_parallel_limits_and_same_job_dedup(self):
+        block = b"z" * (4 * 1024 * 1024)
+        (self.source / "repeated").write_bytes(block * 8)
+        result = self.call("backup", "--source", self.source, "--workers", 8, "--memory-mib", 128)
+        self.assertEqual(result["new_chunks"], 1)
+        self.assertGreater(result["peak_inflight_chunks"], 1)
+        self.assertLessEqual(result["peak_inflight_chunks"], result["inflight_limit"])
+        self.assertLessEqual(result["data_buffer_bound_bytes"], result["data_budget_bytes"])
+        self.call("verify", "--snapshot", result["snapshot_id"])
+        limited = self.call("backup", "--source", self.source, "--workers", 8, "--memory-mib", 32)
+        self.assertEqual(limited["active_workers"], 1)
+        self.assertEqual(limited["chunk_upload_bytes"], 0)
+
 
 if __name__ == "__main__":
     unittest.main()

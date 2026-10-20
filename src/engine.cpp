@@ -128,6 +128,7 @@ ChunkResult store_chunk(Repository& repository, const Bytes& raw, PipelineTiming
             throw;
         }
         inspect(*reconciled);
+        result.uploaded = true;
     }
     checkpoint("chunk_put_after");
     auto confirmed = repository.store().head(key);

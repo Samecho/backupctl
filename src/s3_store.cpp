@@ -232,6 +232,26 @@ std::optional<ObjectInfo> S3Store::head(const std::string& key) {
         if (static_cast<int>(outcome.GetError().GetResponseCode()) == 404) {
             return std::nullopt;
         }
+        if (static_cast<int>(outcome.GetError().GetResponseCode()) == 403) {
+            // A prefix-scoped ListBucket policy can turn a missing-key HEAD into 403.
+            // LIST the exact key before deciding whether this is absence or a denial.
+            Aws::S3::Model::ListObjectsV2Request lookup;
+            lookup.SetBucket(impl_->bucket);
+            lookup.SetPrefix(impl_->key(key));
+            lookup.SetMaxKeys(1);
+            lookup.SetContinueRequestHandler([](const Aws::Http::HttpRequest*) { return !cancelled; });
+            lookup.SetRequestRetryHandler([this](const Aws::AmazonWebServiceRequest&) { ++metrics.list_attempts; });
+            ++metrics.list;
+            ++metrics.list_attempts;
+            auto listed = impl_->client->ListObjectsV2(lookup);
+            if (listed.IsSuccess()) {
+                bool exists = !listed.GetResult().GetContents().empty() &&
+                    listed.GetResult().GetContents().front().GetKey() == impl_->key(key);
+                if (!exists) {
+                    return std::nullopt;
+                }
+            }
+        }
         s3_error(outcome.GetError());
     }
     auto& result = outcome.GetResult();

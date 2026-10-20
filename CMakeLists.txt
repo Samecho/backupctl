@@ -61,4 +61,7 @@ if(BUILD_TESTING)
     add_test(NAME faults COMMAND ${Python3_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/faults.py $<TARGET_FILE:backupctl>)
     set_tests_properties(faults PROPERTIES TIMEOUT 300)
+    add_test(NAME security COMMAND ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/security.py $<TARGET_FILE:backupctl>)
+    set_tests_properties(security PROPERTIES TIMEOUT 180)
 endif()

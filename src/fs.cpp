@@ -9,6 +9,7 @@
 #include <cerrno>
 #include <chrono>
 #include <cstring>
+#include <cstdlib>
 #include <dirent.h>
 #include <fcntl.h>
 #include <linux/fs.h>
@@ -91,10 +92,17 @@ bool is_within(const fs::path& child, const fs::path& parent) {
 FileInfo file_info(const std::string& path, const struct stat& value) {
     require(S_ISREG(value.st_mode) || S_ISDIR(value.st_mode),
             "unsupported", "unsupported file type: " + path);
+    auto nanoseconds = [](const timespec& time) {
+        require(time.tv_nsec >= 0 && time.tv_nsec < 1000000000 &&
+                    time.tv_sec >= INT64_MIN / 1000000000 &&
+                    time.tv_sec <= (INT64_MAX - time.tv_nsec) / 1000000000,
+                "unsupported", "source timestamp exceeds the nanosecond format range");
+        return time.tv_sec * 1000000000LL + time.tv_nsec;
+    };
+    require(value.st_size >= 0, "unsupported", "negative source file size");
     return {path, S_ISDIR(value.st_mode), static_cast<int64_t>(value.st_dev),
             static_cast<int64_t>(value.st_ino), S_ISDIR(value.st_mode) ? 0 : value.st_size,
-            value.st_mode & 0777, value.st_mtim.tv_sec * 1000000000LL + value.st_mtim.tv_nsec,
-            value.st_ctim.tv_sec * 1000000000LL + value.st_ctim.tv_nsec};
+            value.st_mode & 0777, nanoseconds(value.st_mtim), nanoseconds(value.st_ctim)};
 }
 
 bool FileInfo::same_identity(const FileInfo& other) const {
@@ -183,6 +191,20 @@ Fd open_source(const fs::path& source, const std::string& relative) {
 }
 
 void write_all(int fd, const void* data, size_t size) {
+#ifdef BACKUPCTL_TESTING
+    if (std::getenv("BACKUPCTL_TEST_DISK_FULL")) {
+        std::array<char, 4096> path{};
+        auto link = "/proc/self/fd/" + std::to_string(fd);
+        ssize_t length = readlink(link.c_str(), path.data(), path.size() - 1);
+        if (length > 0) {
+            std::string name(path.data(), static_cast<size_t>(length));
+            if (name.find("/.backupctl-") != std::string::npos && name.find("/data/") != std::string::npos) {
+                errno = ENOSPC;
+                io_error("write restored file");
+            }
+        }
+    }
+#endif
     const auto* bytes = static_cast<const unsigned char*>(data);
     while (size > 0) {
         ssize_t written = write(fd, bytes, size);
