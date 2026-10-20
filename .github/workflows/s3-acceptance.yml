@@ -1,0 +1,153 @@
+name: S3 acceptance
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: s3-acceptance
+  cancel-in-progress: false
+jobs:
+  build:
+    if: github.repository == 'Samecho/backupctl' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      VCPKG_ROOT: ${{ github.workspace }}/.deps/vcpkg
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.cache/vcpkg
+      VCPKG_DISABLE_METRICS: 1
+      VCPKG_MAX_CONCURRENCY: 4
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: .cache/vcpkg
+          key: vcpkg-linux-${{ hashFiles('vcpkg.json') }}
+      - run: bash scripts/bootstrap.sh
+      - run: cmake --preset release
+      - run: cmake --build --preset release -j4
+      - run: ctest --preset release
+      - name: Save the tested binary
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: acceptance-linux-x64
+          path: build/release/backupctl
+          retention-days: 7
+  accept:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      TEST_BUCKET: ${{ vars.S3_TEST_BUCKET }}
+      TEST_REGION: ${{ vars.S3_TEST_REGION }}
+      AWS_EC2_METADATA_DISABLED: 'true'
+      AWS_CONFIG_FILE: /dev/null
+      AWS_SHARED_CREDENTIALS_FILE: /dev/null
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Require an explicitly configured destination
+        env:
+          WRITER_ROLE: ${{ vars.S3_TEST_WRITER_ROLE }}
+          READER_ROLE: ${{ vars.S3_TEST_READER_ROLE }}
+          CLEANUP_ROLE: ${{ vars.S3_TEST_CLEANUP_ROLE }}
+        run: |
+          test -n "$TEST_BUCKET"
+          test -n "$TEST_REGION"
+          test -n "$WRITER_ROLE"
+          test -n "$READER_ROLE"
+          test -n "$CLEANUP_ROLE"
+          aws --version
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: acceptance-linux-x64
+          path: out/cloud
+      - run: chmod +x out/cloud/backupctl
+      - name: Obtain a temporary writer session
+        id: writer_credentials
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          aws-region: ${{ vars.S3_TEST_REGION }}
+          role-to-assume: ${{ vars.S3_TEST_WRITER_ROLE }}
+          role-duration-seconds: 900
+          role-session-name: backupctl-writer-${{ github.run_id }}
+          unset-current-credentials: true
+          mask-aws-account-id: true
+      - name: Run the bounded backup and recovery sequence
+        run: >-
+          python3 scripts/s3_acceptance.py out/cloud/backupctl
+          --work .cache/real-s3 --bucket "$TEST_BUCKET" --prefix backupctl/test
+          --region "$TEST_REGION" --environment-credentials --test-crash
+      - name: Check stored objects, conditional writes, and writer boundaries
+        run: >-
+          python3 scripts/s3_ci.py writer --work .cache/real-s3
+          --bucket "$TEST_BUCKET" --region "$TEST_REGION"
+      - name: Obtain a separate temporary reader session
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          aws-region: ${{ vars.S3_TEST_REGION }}
+          role-to-assume: ${{ vars.S3_TEST_READER_ROLE }}
+          role-duration-seconds: 900
+          role-session-name: backupctl-reader-${{ github.run_id }}
+          unset-current-credentials: true
+          mask-aws-account-id: true
+      - name: Restore all versions with read-only remote access
+        run: >-
+          python3 scripts/s3_ci.py reader --work .cache/real-s3
+          --bucket "$TEST_BUCKET" --region "$TEST_REGION" --binary out/cloud/backupctl
+      - name: Obtain cleanup access even after an interrupted check
+        id: cleanup_credentials
+        if: always() && steps.writer_credentials.outcome == 'success' && hashFiles('.cache/real-s3/summary.json') != ''
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          aws-region: ${{ vars.S3_TEST_REGION }}
+          role-to-assume: ${{ vars.S3_TEST_CLEANUP_ROLE }}
+          role-duration-seconds: 900
+          role-session-name: backupctl-cleanup-${{ github.run_id }}
+          unset-current-credentials: true
+          mask-aws-account-id: true
+      - name: Remove only this run's synthetic objects and confirm empty
+        if: always() && steps.cleanup_credentials.outcome == 'success'
+        run: >-
+          python3 scripts/s3_ci.py cleanup --work .cache/real-s3
+          --bucket "$TEST_BUCKET" --region "$TEST_REGION"
+      - name: Record the complete cloud result
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          import subprocess
+          import sys
+          work = Path('.cache/real-s3')
+          work.mkdir(parents=True, exist_ok=True)
+          checks = {}
+          for mode in ['writer', 'reader', 'cleanup']:
+              path = work / f'{mode}-checks.json'
+              checks[mode] = json.loads(path.read_text()) if path.exists() else {'passed': False}
+          result = {'backend': 'real-s3', 'github_sha': os.environ['GITHUB_SHA'],
+                    'run_id': os.environ['GITHUB_RUN_ID'], 'checks': checks,
+                    'aws_cli': subprocess.check_output(['aws', '--version'], text=True).strip(),
+                    'python': sys.version, 'passed': all(row['passed'] for row in checks.values())}
+          (work / 'cloud-acceptance.json').write_text(json.dumps(result, indent=2) + '\n')
+          print(json.dumps(result))
+          if not result['passed']:
+              raise SystemExit('Cloud acceptance is incomplete; see the saved reports.')
+          PY
+      - name: Save evidence without credentials or synthetic source files
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: real-s3-evidence
+          path: |
+            .cache/real-s3/*.json
+            .cache/real-s3/*.jsonl
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 7
