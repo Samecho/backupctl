@@ -5,6 +5,7 @@ from collections import Counter
 import hashlib
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
+import io
 import os
 from pathlib import Path
 import ssl
@@ -36,6 +37,34 @@ class Handler(BaseHTTPRequestHandler):
 
     def log_message(self, *args):
         pass
+
+    def read_chunked(self, stream):
+        payload = bytearray()
+        trailers = {}
+        while True:
+            line = stream.readline(1024)
+            size = int(line.strip().split(b";", 1)[0], 16)
+            if size == 0:
+                while True:
+                    trailer = stream.readline(8192)
+                    if trailer in {b"\r\n", b"\n", b""}:
+                        return bytes(payload), trailers
+                    name, value = trailer.decode().split(":", 1)
+                    trailers[name.lower()] = value.strip()
+            payload.extend(stream.read(size))
+            if stream.read(2) != b"\r\n":
+                raise ValueError("invalid chunk terminator")
+
+    def read_payload(self):
+        trailers = {}
+        if self.headers.get("Transfer-Encoding", "").lower() == "chunked":
+            payload, trailers = self.read_chunked(self.rfile)
+        else:
+            payload = self.rfile.read(int(self.headers.get("Content-Length", "0")))
+        if "aws-chunked" in self.headers.get("Content-Encoding", ""):
+            payload, aws_trailers = self.read_chunked(io.BytesIO(payload))
+            trailers.update(aws_trailers)
+        return payload, trailers
 
     def reply(self, code, data=b"", headers=None):
         self.send_response(code)
@@ -69,7 +98,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.reply(200, (body + '</ListBucketResult>').encode(), {"Content-Type": "application/xml"})
                 return
             if self.command == "PUT":
-                payload = self.rfile.read(int(self.headers.get("Content-Length", "0")))
+                payload, trailers = self.read_payload()
                 if fixture.deny:
                     self.reply(403, b"<Error><Code>AccessDenied</Code></Error>")
                     return
@@ -80,7 +109,8 @@ class Handler(BaseHTTPRequestHandler):
                 if self.headers.get("If-None-Match") != "*":
                     fixture.problems.append("PUT did not use If-None-Match")
                 checksum = base64.b64encode(hashlib.sha256(payload).digest()).decode()
-                if self.headers.get("x-amz-checksum-sha256") != checksum:
+                supplied = self.headers.get("x-amz-checksum-sha256") or trailers.get("x-amz-checksum-sha256")
+                if supplied != checksum:
                     fixture.problems.append("PUT checksum did not match encoded bytes")
                 if self.headers.get("x-amz-server-side-encryption") != "AES256":
                     fixture.problems.append("PUT did not request SSE-S3")
@@ -155,7 +185,7 @@ class S3ContractTest(unittest.TestCase):
         result = subprocess.run([BINARY, command, "--state", str(state or self.state), *map(str, args)],
                                 env=self.environment, capture_output=True, text=True, timeout=45)
         if ok:
-            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(result.returncode, 0, result.stderr + repr(self.fixture.problems))
             return json.loads(result.stdout) if result.stdout.strip() else None
         self.assertNotEqual(result.returncode, 0, result.stdout)
         return json.loads(result.stderr.strip().splitlines()[-1])
