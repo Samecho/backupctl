@@ -24,7 +24,10 @@
       "name": "tsan",
       "inherits": "base",
       "binaryDir": "${sourceDir}/build/tsan",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug", "BACKUPCTL_SANITIZER": "thread" }
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug", "BACKUPCTL_SANITIZER": "thread",
+        "CMAKE_CXX_COMPILER": "/usr/bin/clang++"
+      }
     },
     {
       "name": "clang",
