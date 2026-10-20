@@ -113,5 +113,35 @@ The largest backup RSS across all recorded workloads was **61.0 MiB**, below the
 512 MiB target in this environment. All unchanged runs reported zero new chunk
 payload, and all regular workload verify/restore checks passed. These observations
 cover the offline store. A 50 GiB physical-data restore, real S3 throughput, and
-power-loss durability have not been measured. No perf privileges or host security
-settings were changed; the analysis uses recorded phase timing and CPU counters.
+power-loss durability were outside that original run. The full restore checks below
+close the large-file and large-directory gaps; real S3 and power loss remain untested.
+No perf privileges or host security settings were changed; the analysis uses
+recorded phase timing and CPU counters.
+
+## Full restore follow-up
+
+The [dense-file records](../benchmarks/results/2026-10-20-restore-local/README.md)
+measure a fully written 50 GiB pseudorandom input, 12,800 unique chunks, and a real
+50 GiB restored file. This used Ubuntu 24.04 on Docker Desktop/WSL2 with an Intel
+i7-14700F host, limited to four CPUs and 8 GiB. The application revision was `55532a6`.
+
+| Dense 50 GiB command | Wall time | Peak RSS |
+| --- | --- | --- |
+| Backup | 294.675 s | 58.57 MiB |
+| Verify | 141.910 s | 36.04 MiB |
+| Restore | 453.086 s | 36.04 MiB |
+
+Both source and restored file allocations exceeded their logical size. Verify and
+restore used a fresh local state database. A separate complete reread matched the
+restored contents, path, mode, and nanosecond mtime. All three processes passed the
+512 MiB RSS limit; the backup kept its buffer reservation within 128 MiB.
+
+The [100,000-file CI records](../benchmarks/results/2026-10-20-restore-ci/README.md)
+also pass backup, verify, and fresh-state restore with an independent inventory
+comparison. That runner had two logical EPYC 9V45 CPUs and about 8 GB RAM. The files
+were 256 bytes each with 64 distinct payloads. Backup took 217.342 seconds, verify
+5.108 seconds, and restore 39.824 seconds; process RSS peaked at 35.99 MiB for each.
+
+These single acceptance runs establish the tested scale and memory bounds. They
+use different hardware from the earlier repeated benchmark and are not a speedup
+comparison. They cover the offline store, with all checksums and persistence enabled.

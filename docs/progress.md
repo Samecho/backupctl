@@ -41,7 +41,7 @@ needed.
 | Write failures | Permission errors and injected ENOSPC refuse commit/restore publication |
 | SDK contract | Actual SDK + local HTTPS: SigV4 header, conditional PUT, encoded SHA-256, SSE-S3, missing-key HEAD 403 reconciliation, three attempts on 503, one on denied PUT, lost commit response, checksum rejection, bounded downloads, unrelated CA refused |
 | Demonstration | `scripts/demo.py` runs the complete first/incremental/interrupted/old-version/corruption sequence in CI |
-| Measurements | 500 backup runs plus 100 verify/restore pairs; separate 50 GiB and 100,000-file backup resource checks |
+| Measurements | 500 backup runs plus 100 verify/restore pairs; full dense 50 GiB and 100,000-file fresh-state restores with independent inventory comparison |
 
 The random termination test records seed `20261020`, requested delay, observed phase,
 confirmed byte checkpoint, and remote chunk count. CTest's full log is kept as a CI
@@ -66,8 +66,10 @@ not weaken hashes, persistence, or publication rules after a failure.
   objects; automatic garbage collection is intentionally absent.
 - Version 1 limits manifest size to 1 GiB, records to 64 KiB, paths to 4095 bytes,
   and directory depth to 256. Timestamps outside the signed nanosecond range fail.
-- The resource measurements use a 2-vCPU, approximately 8-GB Linux CI runner and the
-  offline store. The 50 GiB input is sparse zero data. A full 50 GiB physical-data
-  restore and a large real S3 transfer remain unmeasured.
+- The repeated benchmark uses a 2-vCPU, approximately 8-GB CI runner. Follow-up
+  acceptance covers a fully written 50 GiB random-file restore in a four-CPU,
+  8-GiB Linux container, plus a 100,000-file restore on CI. See the exact environments
+  and raw records in [performance measurements](performance.md). Large real S3
+  transfers remain unmeasured.
 - Sanitizers instrument application code. The pinned third-party binaries are built
   separately by vcpkg; a passing run does not prove the inside of every dependency.
