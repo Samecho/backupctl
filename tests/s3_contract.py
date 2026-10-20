@@ -233,6 +233,26 @@ class S3ContractTest(unittest.TestCase):
         self.call("restore", "--snapshot", snapshot, "--target", self.root / "bad", ok=False)
         self.assertFalse((self.root / "bad").exists())
 
+    def test_acceptance_harness_uses_temporary_environment_credentials(self):
+        script = Path(__file__).resolve().parents[1] / "scripts/s3_acceptance.py"
+        work = self.root / "temporary-session-harness"
+        environment = {**self.environment, "AWS_SESSION_TOKEN": "fixture-session-not-a-real-token"}
+        result = subprocess.run(
+            [sys.executable, str(script), BINARY, "--work", str(work), "--bucket", "test-bucket",
+             "--prefix", "isolated/harness", "--region", "us-east-1",
+             "--environment-credentials", "--test-crash"],
+            env=environment, capture_output=True, text=True, timeout=90,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout[-2000:])
+        summary = json.loads((work / "summary.json").read_text())
+        self.assertTrue(summary["passed"])
+        self.assertEqual(summary["backend"], "sdk-https-fixture")
+        self.assertEqual(summary["credential_source"], "temporary-environment")
+        self.assertTrue(summary["fresh_state_restore"])
+        self.assertEqual(len(summary["snapshot_ids"]), 4)
+        self.assertNotIn(environment["AWS_SECRET_ACCESS_KEY"], (work / "events.jsonl").read_text())
+        self.assertNotIn(environment["AWS_SESSION_TOKEN"], (work / "events.jsonl").read_text())
+
     def test_stream_download_limit_and_tls_verification(self):
         snapshot = self.call("backup", "--source", self.source)["snapshot_id"]
         self.fixture.oversize = True

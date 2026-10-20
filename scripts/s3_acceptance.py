@@ -32,22 +32,33 @@ def main():
     parser.add_argument("--prefix", help="Dedicated test parent prefix; a unique child is appended")
     parser.add_argument("--region")
     parser.add_argument("--profile", help="Existing local AWS profile name; never pass credentials")
+    parser.add_argument("--environment-credentials", action="store_true",
+                        help="Use short-lived credentials supplied by this CI process")
     parser.add_argument("--read-profile", help="Optional existing restore-only profile for fresh-state checks")
     parser.add_argument("--test-crash", action="store_true", help="Requires a test-enabled executable")
     parser.add_argument("--local-store", type=Path, help="Exercise the harness offline; does not validate S3")
     args = parser.parse_args()
-    if not args.local_store and not all([args.bucket, args.prefix, args.region, args.profile]):
-        parser.error("real S3 requires bucket, dedicated prefix, region, and an existing profile")
-    if args.local_store and any([args.bucket, args.prefix, args.region, args.profile, args.read_profile]):
+    if not args.local_store and not all([args.bucket, args.prefix, args.region]):
+        parser.error("real S3 requires bucket, dedicated prefix, and region")
+    if not args.local_store and bool(args.profile) == args.environment_credentials:
+        parser.error("choose exactly one existing profile or --environment-credentials")
+    if args.environment_credentials and (args.read_profile or not all(os.environ.get(name) for name in
+            ["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_SESSION_TOKEN"])):
+        parser.error("environment mode requires temporary session credentials and no read profile")
+    if args.local_store and any([args.bucket, args.prefix, args.region, args.profile, args.read_profile,
+                                args.environment_credentials]):
         parser.error("choose either real S3 or the offline harness check")
     binary = args.binary.resolve()
     args.work.mkdir(parents=True, exist_ok=False)
     prefix = f"{args.prefix.rstrip('/')}/acceptance-{uuid.uuid4().hex}" if args.prefix else None
     backend = (["--local-store", str(args.local_store.resolve())] if args.local_store else
                ["--bucket", args.bucket, "--prefix", prefix, "--region", args.region])
-    summary = {"backend": "local-harness-check" if args.local_store else "real-s3",
+    summary = {"backend": "local-harness-check" if args.local_store else
+                   "sdk-https-fixture" if os.environ.get("BACKUPCTL_TEST_S3_ENDPOINT") else "real-s3",
                "bucket": args.bucket, "prefix": prefix, "region": args.region,
                "profile": args.profile, "read_profile": args.read_profile,
+               "credential_source": "temporary-environment" if args.environment_credentials else
+                   "profile" if args.profile else "offline",
                "binary_sha256": hashlib.sha256(binary.read_bytes()).hexdigest(),
                "remote_objects_retained": True, "passed": False}
     summary_path = args.work / "summary.json"
@@ -55,6 +66,8 @@ def main():
     with (args.work / "events.jsonl").open("w") as log:
         def run(state, verb, *options, profile=None, crash=False):
             environment = dict(os.environ)
+            if args.environment_credentials:
+                environment["AWS_EC2_METADATA_DISABLED"] = "true"
             if profile:
                 environment.update(AWS_PROFILE=profile, AWS_EC2_METADATA_DISABLED="true")
             if crash:
