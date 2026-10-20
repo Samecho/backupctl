@@ -110,6 +110,8 @@ def main():
         (source / "duplicate.bin").unlink()
         (source / "added").write_bytes(b"new version")
         current = inventory(source)
+        summary.update(original_inventory=original, current_inventory=current)
+        summary_path.write_text(json.dumps(summary, indent=2) + "\n")
         third = run(state, "backup", "--source", source, profile=args.profile)[0]
         assert third["new_chunks"] > 0
         snapshots = [first, unchanged, third]

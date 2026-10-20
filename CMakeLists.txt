@@ -65,6 +65,8 @@ if(BUILD_TESTING)
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/security.py $<TARGET_FILE:backupctl>)
     set_tests_properties(security PROPERTIES TIMEOUT 180)
     if(BACKUPCTL_S3)
+        add_test(NAME s3_ci_guards COMMAND ${Python3_EXECUTABLE}
+            ${CMAKE_CURRENT_SOURCE_DIR}/tests/s3_ci_guards.py)
         add_test(NAME s3_contract COMMAND ${Python3_EXECUTABLE}
             ${CMAKE_CURRENT_SOURCE_DIR}/tests/s3_contract.py $<TARGET_FILE:backupctl>)
         set_tests_properties(s3_contract PROPERTIES TIMEOUT 180)

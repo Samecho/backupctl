@@ -250,6 +250,7 @@ class S3ContractTest(unittest.TestCase):
         self.assertEqual(summary["credential_source"], "temporary-environment")
         self.assertTrue(summary["fresh_state_restore"])
         self.assertEqual(len(summary["snapshot_ids"]), 4)
+        self.assertNotEqual(summary["original_inventory"], summary["current_inventory"])
         self.assertNotIn(environment["AWS_SECRET_ACCESS_KEY"], (work / "events.jsonl").read_text())
         self.assertNotIn(environment["AWS_SESSION_TOKEN"], (work / "events.jsonl").read_text())
 
