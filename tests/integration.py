@@ -35,7 +35,7 @@ class BackupTest(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             return json.loads(result.stdout) if result.stdout.strip() else None
         self.assertNotEqual(result.returncode, 0, result.stdout)
-        return json.loads(result.stderr) if result.stderr.strip() else result
+        return json.loads(result.stderr.strip().splitlines()[-1]) if result.stderr.strip() else result
 
     def backup(self, **kwargs):
         return self.call("backup", "--source", self.source, **kwargs)

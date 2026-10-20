@@ -70,9 +70,16 @@ std::optional<ObjectInfo> LocalStore::head(const std::string& key) {
     if (!fs::exists(path)) {
         return std::nullopt;
     }
+#ifdef BACKUPCTL_TESTING
+    if (std::getenv("BACKUPCTL_TEST_COMMIT_READ_FAILURE") && key.starts_with("snapshots/")) {
+        throw Error("network_exhausted", "injected commit read timeout");
+    }
+#endif
     auto value = Json::parse(read_small(path / "meta.json", max_record_size));
     ObjectInfo info{value.at("size").get<uint64_t>(), value.at("metadata").get<Metadata>()};
-    require(fs::file_size(path / "data") == info.size, "integrity", "object length mismatch");
+    std::error_code error;
+    auto size = fs::file_size(path / "data", error);
+    require(!error && size == info.size, "integrity", "object is missing or has the wrong length");
     return info;
 }
 
@@ -80,6 +87,11 @@ bool LocalStore::write_object(const std::string& key, const std::function<void(i
                               const ObjectInfo& info) {
     ++metrics.put;
     test_store_delay();
+#ifdef BACKUPCTL_TESTING
+    if (std::getenv("BACKUPCTL_TEST_PUT_PERMISSION")) {
+        throw Error("permission", "injected write denial");
+    }
+#endif
     auto target = object_path(key);
     auto temporary = root_ / ".pending" / random_id();
     fs::create_directory(temporary);
@@ -107,6 +119,12 @@ bool LocalStore::write_object(const std::string& key, const std::function<void(i
         sync_directory(target.parent_path());
         metrics.uploaded += info.size;
         ++metrics.put_created;
+#ifdef BACKUPCTL_TESTING
+        const char* lost = std::getenv("BACKUPCTL_TEST_LOST_RESPONSE");
+        if (lost && key.starts_with(std::string(lost) + "/")) {
+            throw Error("network_exhausted", "injected lost PUT response");
+        }
+#endif
         return true;
     } catch (...) {
         std::error_code ignored;

@@ -11,6 +11,7 @@
 #include <deque>
 #include <fcntl.h>
 #include <fstream>
+#include <iostream>
 #include <sys/resource.h>
 #include <unistd.h>
 
@@ -278,6 +279,8 @@ Json Engine::backup(const fs::path& requested_source, const BackupOptions& optio
         database.prepare("INSERT INTO checkpoints(job) VALUES(?)").bind(1, current_job_).run();
         transaction.commit();
     }
+    std::cerr << Json{{"event", "job_started"}, {"job_id", current_job_},
+                      {"snapshot_id", snapshot}}.dump() << '\n';
     return run(database, current_job_);
 }
 

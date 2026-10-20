@@ -58,4 +58,7 @@ if(BUILD_TESTING)
     add_test(NAME integration COMMAND ${Python3_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/integration.py $<TARGET_FILE:backupctl>)
     set_tests_properties(integration PROPERTIES TIMEOUT 180)
+    add_test(NAME faults COMMAND ${Python3_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/faults.py $<TARGET_FILE:backupctl>)
+    set_tests_properties(faults PROPERTIES TIMEOUT 300)
 endif()
