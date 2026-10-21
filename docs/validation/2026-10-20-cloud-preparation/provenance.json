@@ -1,0 +1,19 @@
+{
+  "source_revision": "ac7879eb6606260a8c6649d7b4f83d7e1c66b77e",
+  "workflow": "https://github.com/Samecho/backupctl/actions/runs/39518475515",
+  "conclusion": "success",
+  "tests_per_configuration": 42,
+  "configurations": [
+    "GCC release",
+    "Clang",
+    "ASan + UBSan",
+    "TSan"
+  ],
+  "cfn_lint_version": "1.57.2",
+  "cfn_lint_exit_code": 0,
+  "actionlint_version": "1.7.12",
+  "actionlint_exit_code": 0,
+  "cloud_template_sha256": "c0f0230d7add0c1fb5471c1bedd0a74d018b4ae928de97294a9332e0a235d600",
+  "cloud_workflow_sha256": "9e71b871642ffd6cdf3df1a1e406add7e5d37a8b3e106fb9dbd10bc54af5be44",
+  "real_s3_acceptance_run": false
+}
